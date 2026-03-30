@@ -1,6 +1,6 @@
 # API Overview
 
-The EFCC Convictions Explorer provides a comprehensive REST API for accessing and analyzing conviction records.
+Nigeria's Fraud Conviction Records provides a comprehensive REST API for accessing and analyzing conviction records.
 
 ## API Basics
 

@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-Common issues and solutions for EFCC Convictions Explorer.
+Common issues and solutions for Nigeria's Fraud Conviction Records platform.
 
 ## Backend Issues
 

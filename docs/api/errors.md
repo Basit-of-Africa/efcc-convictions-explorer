@@ -1,6 +1,6 @@
 # Error Handling
 
-Error codes and handling strategies for the EFCC Convictions Explorer API.
+Error codes and handling strategies for Nigeria's Fraud Conviction Records API.
 
 ## HTTP Status Codes
 

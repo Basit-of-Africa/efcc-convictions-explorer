@@ -1,10 +1,10 @@
 # Authentication
 
-Authentication and authorization for EFCC Convictions Explorer.
+Authentication and authorization for Nigeria's Fraud Conviction Records API.
 
 ## Current Status
 
-The API currently **does not require authentication** as it serves publicly available EFCC conviction records.
+The API currently **does not require authentication** as it serves publicly available fraud conviction records.
 
 ## Future Authentication
 
