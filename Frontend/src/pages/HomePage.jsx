@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import { Shield, Search, BarChart3, Lock, Zap, Globe } from "lucide-react";
 
-const HomePage = () => {
+const HomePage = ({ isDark }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-gray-900">
+    <div className={`min-h-screen transition-colors ${isDark ? "bg-gradient-to-b from-slate-900 via-slate-800 to-gray-900" : "bg-white"}`}>
       {/* Hero Section */}
       <div className="relative min-h-screen flex items-center justify-center px-4 py-20">
         <div className="absolute inset-0 overflow-hidden">
@@ -16,16 +16,16 @@ const HomePage = () => {
 
         <div className="relative max-w-5xl w-full z-10">
           <div className="text-center">
-            <h1 className="text-6xl md:text-7xl font-bold text-white mb-6 leading-tight">
+            <h1 className={`text-6xl md:text-7xl font-bold ${isDark ? "text-white" : "text-gray-900"} mb-6 leading-tight`}>
               Check EFCC Conviction
               <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"> Records</span>
             </h1>
-            <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
+            <p className={`text-xl ${isDark ? "text-gray-300" : "text-gray-600"} mb-12 max-w-2xl mx-auto`}>
               Access publicly verified EFCC (Economic and Financial Crimes Commission) conviction records. Search by defendant name, offense type, or court location. Transparent, accurate, and always up-to-date.
             </p>
             
             <div className="mb-16">
-              <SearchBar />
+              <SearchBar isDark={isDark} />
             </div>
 
             <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-400">
@@ -47,45 +47,45 @@ const HomePage = () => {
       </div>
 
       {/* Features Section */}
-      <div className="py-20 px-4 bg-gradient-to-b from-gray-900 to-slate-900">
+      <div className={`py-20 px-4 transition-colors ${isDark ? "bg-gradient-to-b from-gray-900 to-slate-900" : "bg-gray-50"}`}>
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-white text-center mb-4">
+          <h2 className={`text-4xl font-bold text-center mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>
             Everything You Need to Know
           </h2>
-          <p className="text-gray-400 text-center mb-16 max-w-2xl mx-auto">
+          <p className={`text-center mb-16 max-w-2xl mx-auto ${isDark ? "text-gray-400" : "text-gray-600"}`}>
             Comprehensive tools to search, analyze, and understand EFCC conviction records
           </p>
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="group bg-gradient-to-br from-slate-800 to-slate-900 p-8 rounded-2xl border border-slate-700 hover:border-blue-500 transition-all hover:shadow-lg hover:shadow-blue-500/20">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition-colors">
-                <Search className="w-6 h-6 text-blue-400" />
+            <div className={`group p-8 rounded-2xl border transition-all ${isDark ? "bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20" : "bg-white border-gray-200 hover:border-blue-400 hover:shadow-md hover:shadow-blue-400/10"}`}>
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors ${isDark ? "bg-blue-500/20 group-hover:bg-blue-500/30" : "bg-blue-100 group-hover:bg-blue-150"}`}>
+                <Search className={`w-6 h-6 ${isDark ? "text-blue-400" : "text-blue-600"}`} />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Smart Search</h3>
-              <p className="text-gray-400">
+              <h3 className={`text-xl font-bold mb-3 ${isDark ? "text-white" : "text-gray-900"}`}>Smart Search</h3>
+              <p className={isDark ? "text-gray-400" : "text-gray-600"}>
                 Find conviction records by defendant name with instant, accurate results. Supports partial matches and fuzzy search.
               </p>
             </div>
 
             {/* Feature 2 */}
-            <div className="group bg-gradient-to-br from-slate-800 to-slate-900 p-8 rounded-2xl border border-slate-700 hover:border-purple-500 transition-all hover:shadow-lg hover:shadow-purple-500/20">
-              <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-500/30 transition-colors">
-                <BarChart3 className="w-6 h-6 text-purple-400" />
+            <div className={`group p-8 rounded-2xl border transition-all ${isDark ? "bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/20" : "bg-white border-gray-200 hover:border-purple-400 hover:shadow-md hover:shadow-purple-400/10"}`}>
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors ${isDark ? "bg-purple-500/20 group-hover:bg-purple-500/30" : "bg-purple-100 group-hover:bg-purple-150"}`}>
+                <BarChart3 className={`w-6 h-6 ${isDark ? "text-purple-400" : "text-purple-600"}`} />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Deep Analytics</h3>
-              <p className="text-gray-400">
+              <h3 className={`text-xl font-bold mb-3 ${isDark ? "text-white" : "text-gray-900"}`}>Deep Analytics</h3>
+              <p className={isDark ? "text-gray-400" : "text-gray-600"}>
                 Explore conviction trends, offense statistics, court distribution, and sentencing patterns across the database.
               </p>
             </div>
 
             {/* Feature 3 */}
-            <div className="group bg-gradient-to-br from-slate-800 to-slate-900 p-8 rounded-2xl border border-slate-700 hover:border-green-500 transition-all hover:shadow-lg hover:shadow-green-500/20">
-              <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-green-500/30 transition-colors">
-                <Globe className="w-6 h-6 text-green-400" />
+            <div className={`group p-8 rounded-2xl border transition-all ${isDark ? "bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-green-500 hover:shadow-lg hover:shadow-green-500/20" : "bg-white border-gray-200 hover:border-green-400 hover:shadow-md hover:shadow-green-400/10"}`}>
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors ${isDark ? "bg-green-500/20 group-hover:bg-green-500/30" : "bg-green-100 group-hover:bg-green-150"}`}>
+                <Globe className={`w-6 h-6 ${isDark ? "text-green-400" : "text-green-600"}`} />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Nationwide Coverage</h3>
-              <p className="text-gray-400">
+              <h3 className={`text-xl font-bold mb-3 ${isDark ? "text-white" : "text-gray-900"}`}>Nationwide Coverage</h3>
+              <p className={isDark ? "text-gray-400" : "text-gray-600"}>
                 Access records from 33+ Federal High Courts across Nigeria. Filter by court location and jurisdiction.
               </p>
             </div>
@@ -94,9 +94,9 @@ const HomePage = () => {
       </div>
 
       {/* How It Works Section */}
-      <div className="py-20 px-4">
+      <div className={`py-20 px-4 ${isDark ? "" : "bg-white"}`}>
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold text-white text-center mb-16">
+          <h2 className={`text-4xl font-bold text-center mb-16 ${isDark ? "text-white" : "text-gray-900"}`}>
             How It Works
           </h2>
 
@@ -122,8 +122,8 @@ const HomePage = () => {
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-6">
                   <span className="text-2xl font-bold text-white">{item.step}</span>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                <p className="text-gray-400">{item.description}</p>
+                <h3 className={`text-xl font-bold mb-3 ${isDark ? "text-white" : "text-gray-900"}`}>{item.title}</h3>
+                <p className={isDark ? "text-gray-400" : "text-gray-600"}>{item.description}</p>
               </div>
             ))}
           </div>
@@ -131,7 +131,7 @@ const HomePage = () => {
       </div>
 
       {/* Stats Section */}
-      <div className="py-20 px-4 bg-gradient-to-r from-blue-900/30 to-purple-900/30">
+      <div className={`py-20 px-4 transition-colors ${isDark ? "bg-gradient-to-r from-blue-900/30 to-purple-900/30" : "bg-gray-50"}`}>
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             {[
@@ -144,7 +144,7 @@ const HomePage = () => {
                 <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-2">
                   {stat.value}
                 </div>
-                <p className="text-gray-400">{stat.label}</p>
+                <p className={isDark ? "text-gray-400" : "text-gray-600"}>{stat.label}</p>
               </div>
             ))}
           </div>
@@ -152,19 +152,19 @@ const HomePage = () => {
       </div>
 
       {/* CTA Section */}
-      <div className="py-20 px-4">
+      <div className={`py-20 px-4 ${isDark ? "" : "bg-white"}`}>
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">
+          <h2 className={`text-4xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-900"}`}>
             Ready to Access the Data?
           </h2>
-          <p className="text-xl text-gray-400 mb-8">
+          <p className={`text-xl mb-8 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
             Start exploring EFCC conviction records today. Completely free and accessible to everyone.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/search?name=" className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all transform hover:scale-105">
               Start Searching
             </Link>
-            <Link to="/insights" className="px-8 py-4 bg-slate-800 text-white font-semibold rounded-lg border border-slate-700 hover:border-gray-500 transition-all">
+            <Link to="/insights" className={`px-8 py-4 font-semibold rounded-lg border transition-all ${isDark ? "bg-slate-800 text-white border-slate-700 hover:border-gray-500" : "bg-white text-gray-900 border-gray-300 hover:border-gray-400 hover:shadow-md"}`}>
               View Analytics
             </Link>
           </div>
@@ -172,9 +172,9 @@ const HomePage = () => {
       </div>
 
       {/* FAQ Section */}
-      <div className="py-20 px-4 bg-slate-900">
+      <div className={`py-20 px-4 transition-colors ${isDark ? "bg-slate-900" : "bg-gray-50"}`}>
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold text-white text-center mb-16">
+          <h2 className={`text-4xl font-bold text-center mb-16 ${isDark ? "text-white" : "text-gray-900"}`}>
             Frequently Asked Questions
           </h2>
 
@@ -201,12 +201,12 @@ const HomePage = () => {
                 a: "If you find discrepancies, please contact our support team. We cross-reference all data with official EFCC records."
               }
             ].map((faq, idx) => (
-              <details key={idx} className="group bg-slate-800 rounded-lg border border-slate-700 p-6 cursor-pointer hover:border-slate-600 transition-colors">
-                <summary className="flex justify-between items-center font-semibold text-white">
+              <details key={idx} className={`group rounded-lg border p-6 cursor-pointer transition-colors ${isDark ? "bg-slate-800 border-slate-700 hover:border-slate-600" : "bg-white border-gray-200 hover:border-gray-300"}`}>
+                <summary className={`flex justify-between items-center font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
                   {faq.q}
-                  <span className="text-gray-400 group-open:rotate-180 transition-transform">↓</span>
+                  <span className={`${isDark ? "text-gray-400" : "text-gray-600"} group-open:rotate-180 transition-transform`}>↓</span>
                 </summary>
-                <p className="text-gray-400 mt-4">{faq.a}</p>
+                <p className={`mt-4 ${isDark ? "text-gray-400" : "text-gray-600"}`}>{faq.a}</p>
               </details>
             ))}
           </div>
@@ -214,12 +214,12 @@ const HomePage = () => {
       </div>
 
       {/* Trust Section */}
-      <div className="py-20 px-4">
+      <div className={`py-20 px-4 ${isDark ? "" : "bg-white"}`}>
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold text-white text-center mb-12">
+          <h2 className={`text-4xl font-bold text-center mb-12 ${isDark ? "text-white" : "text-gray-900"}`}>
             Trusted by Organizations Nationwide
           </h2>
-          <p className="text-gray-400 text-center mb-12">
+          <p className={`text-center mb-12 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
             Used by journalists, researchers, compliance officers, and organizations seeking verified fraud conviction data
           </p>
 
@@ -238,9 +238,9 @@ const HomePage = () => {
                 uses: "Fraud studies and trend analysis"
               }
             ].map((item, idx) => (
-              <div key={idx} className="bg-gradient-to-br from-slate-800 to-slate-900 p-8 rounded-lg border border-slate-700">
-                <h3 className="text-lg font-bold text-white mb-2">{item.org}</h3>
-                <p className="text-gray-400">{item.uses}</p>
+              <div key={idx} className={`p-8 rounded-lg border ${isDark ? "bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700" : "bg-gray-50 border-gray-200"}`}>
+                <h3 className={`text-lg font-bold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>{item.org}</h3>
+                <p className={isDark ? "text-gray-400" : "text-gray-600"}>{item.uses}</p>
               </div>
             ))}
           </div>

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ArrowRight } from "lucide-react";
 
-const SearchBar = ({ initialValue = "" }) => {
+const SearchBar = ({ initialValue = "", isDark = false }) => {
   const [query, setQuery] = useState(initialValue);
   const navigate = useNavigate();
 
@@ -19,8 +19,8 @@ const SearchBar = ({ initialValue = "" }) => {
       <div className="relative group">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
         
-        <div className="relative flex items-center bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 rounded-full shadow-lg focus-within:border-blue-500 focus-within:shadow-xl focus-within:shadow-blue-500/30 transition-all">
-          <div className="pl-6 text-gray-500">
+        <div className={`relative flex items-center border rounded-full shadow-lg focus-within:border-blue-500 focus-within:shadow-xl focus-within:shadow-blue-500/30 transition-all ${isDark ? "bg-gradient-to-r from-slate-800 to-slate-900 border-slate-700" : "bg-white border-gray-200 hover:border-gray-300"}`}>
+          <div className={`pl-6 ${isDark ? "text-gray-500" : "text-gray-400"}`}>
             <Search className="w-5 h-5" />
           </div>
           
@@ -29,7 +29,7 @@ const SearchBar = ({ initialValue = "" }) => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by defendant name..."
-            className="w-full px-4 py-4 text-lg text-white bg-transparent placeholder-gray-500 focus:outline-none"
+            className={`w-full px-4 py-4 text-lg bg-transparent focus:outline-none ${isDark ? "text-white placeholder-gray-500" : "text-gray-900 placeholder-gray-400"}`}
           />
           
           <button
@@ -43,7 +43,7 @@ const SearchBar = ({ initialValue = "" }) => {
         </div>
       </div>
       
-      <p className="text-center text-gray-500 text-sm mt-4">
+      <p className={`text-center text-sm mt-4 ${isDark ? "text-gray-500" : "text-gray-600"}`}>
         Search 864 verified EFCC conviction records
       </p>
     </form>
