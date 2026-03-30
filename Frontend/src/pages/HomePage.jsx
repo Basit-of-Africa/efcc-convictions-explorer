@@ -6,89 +6,114 @@ import { Shield, Search, BarChart3, Lock, Zap, Globe } from "lucide-react";
 
 const HomePage = ({ isDark }) => {
   return (
-    <div className={`min-h-screen transition-colors ${isDark ? "bg-gradient-to-b from-slate-900 via-slate-800 to-gray-900" : "bg-white"}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${isDark ? "bg-slate-950" : "bg-white"}`}>
       {/* Hero Section */}
       <div className="relative min-h-screen flex items-center justify-center px-4 py-20">
+        {/* Subtle background elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 opacity-20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 opacity-20 rounded-full blur-3xl"></div>
+          <div className={`absolute -top-40 right-0 w-80 h-80 rounded-full blur-3xl opacity-10 ${isDark ? "bg-blue-500" : "bg-blue-300"}`}></div>
+          <div className={`absolute -bottom-40 left-0 w-80 h-80 rounded-full blur-3xl opacity-10 ${isDark ? "bg-purple-500" : "bg-purple-300"}`}></div>
         </div>
 
-        <div className="relative max-w-5xl w-full z-10">
+        <div className="relative max-w-4xl w-full z-10">
           <div className="text-center">
-            <h1 className={`text-6xl md:text-7xl font-bold ${isDark ? "text-white" : "text-gray-900"} mb-6 leading-tight`}>
-              Nigeria's Fraud Conviction
-              <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"> Records</span>
+            <p className={`text-sm font-semibold uppercase tracking-widest mb-4 ${
+              isDark ? "text-blue-400" : "text-blue-600"
+            }`}>
+              Powered by Public Records
+            </p>
+            <h1 className={`text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6 leading-tight ${
+              isDark ? "text-white" : "text-gray-900"
+            }`}>
+              Nigeria's Fraud Conviction <span className={isDark ? "text-blue-400" : "text-blue-600"}>Records</span>
             </h1>
-            <p className={`text-xl ${isDark ? "text-gray-300" : "text-gray-600"} mb-12 max-w-2xl mx-auto`}>
-              Access publicly verified fraud conviction records from Nigeria's federal courts. Search by defendant name, offense type, or court location. Transparent, accurate, and always up-to-date.
+            <p className={`text-lg sm:text-xl leading-relaxed mb-12 max-w-2xl mx-auto ${
+              isDark ? "text-gray-400" : "text-gray-600"
+            }`}>
+              Access verified fraud conviction records from Nigeria's federal courts. Search, analyze, and stay informed with transparent data.
             </p>
             
             <div className="mb-16">
               <SearchBar isDark={isDark} />
             </div>
 
-            <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-400">
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-blue-400" />
-                <span>Verified Data</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-green-400" />
-                <span>Secure & Private</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-yellow-400" />
-                <span>Real-time Updates</span>
-              </div>
+            <div className="flex flex-wrap justify-center gap-6 text-sm">
+              {[
+                { label: "7,788+ Records", icon: "📊" },
+                { label: "33+ Federal Courts", icon: "⚖️" },
+                { label: "Real-time Updated", icon: "⚡" }
+              ].map((stat, idx) => (
+                <div key={idx} className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+                  isDark ? "bg-slate-800/50 text-gray-300" : "bg-gray-100 text-gray-700"
+                }`}>
+                  <span className="text-lg">{stat.icon}</span>
+                  <span className="font-medium">{stat.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
       {/* Features Section */}
-      <div className={`py-20 px-4 transition-colors ${isDark ? "bg-gradient-to-b from-gray-900 to-slate-900" : "bg-gray-50"}`}>
+      <div className={`py-24 px-4 border-t ${
+        isDark ? "border-slate-800 bg-slate-900/50" : "border-gray-100 bg-gray-50"
+      }`}>
         <div className="max-w-6xl mx-auto">
-          <h2 className={`text-4xl font-bold text-center mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>
-            Everything You Need to Know
-          </h2>
-          <p className={`text-center mb-16 max-w-2xl mx-auto ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-            Comprehensive tools to search, analyze, and understand Nigeria's fraud conviction records
-          </p>
+          <div className="text-center mb-16">
+            <h2 className={`text-4xl font-bold mb-4 ${
+              isDark ? "text-white" : "text-gray-900"
+            }`}>
+              Everything you need
+            </h2>
+            <p className={`text-lg max-w-2xl mx-auto ${
+              isDark ? "text-gray-400" : "text-gray-600"
+            }`}>
+              Comprehensive tools to search, analyze, and understand fraud conviction patterns
+            </p>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className={`group p-8 rounded-2xl border transition-all ${isDark ? "bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20" : "bg-white border-gray-200 hover:border-blue-400 hover:shadow-md hover:shadow-blue-400/10"}`}>
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors ${isDark ? "bg-blue-500/20 group-hover:bg-blue-500/30" : "bg-blue-100 group-hover:bg-blue-150"}`}>
-                <Search className={`w-6 h-6 ${isDark ? "text-blue-400" : "text-blue-600"}`} />
-              </div>
-              <h3 className={`text-xl font-bold mb-3 ${isDark ? "text-white" : "text-gray-900"}`}>Smart Search</h3>
-              <p className={isDark ? "text-gray-400" : "text-gray-600"}>
-                Find conviction records by defendant name with instant, accurate results. Supports partial matches and fuzzy search.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className={`group p-8 rounded-2xl border transition-all ${isDark ? "bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/20" : "bg-white border-gray-200 hover:border-purple-400 hover:shadow-md hover:shadow-purple-400/10"}`}>
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors ${isDark ? "bg-purple-500/20 group-hover:bg-purple-500/30" : "bg-purple-100 group-hover:bg-purple-150"}`}>
-                <BarChart3 className={`w-6 h-6 ${isDark ? "text-purple-400" : "text-purple-600"}`} />
-              </div>
-              <h3 className={`text-xl font-bold mb-3 ${isDark ? "text-white" : "text-gray-900"}`}>Deep Analytics</h3>
-              <p className={isDark ? "text-gray-400" : "text-gray-600"}>
-                Explore conviction trends, offense statistics, court distribution, and sentencing patterns across the database.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className={`group p-8 rounded-2xl border transition-all ${isDark ? "bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-green-500 hover:shadow-lg hover:shadow-green-500/20" : "bg-white border-gray-200 hover:border-green-400 hover:shadow-md hover:shadow-green-400/10"}`}>
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors ${isDark ? "bg-green-500/20 group-hover:bg-green-500/30" : "bg-green-100 group-hover:bg-green-150"}`}>
-                <Globe className={`w-6 h-6 ${isDark ? "text-green-400" : "text-green-600"}`} />
-              </div>
-              <h3 className={`text-xl font-bold mb-3 ${isDark ? "text-white" : "text-gray-900"}`}>Nationwide Coverage</h3>
-              <p className={isDark ? "text-gray-400" : "text-gray-600"}>
-                Access records from 33+ Federal High Courts across Nigeria. Filter by court location and jurisdiction.
-              </p>
-            </div>
+            {[
+              {
+                icon: Search,
+                title: "Smart Search",
+                description: "Find conviction records by defendant name with instant, accurate results"
+              },
+              {
+                icon: BarChart3,
+                title: "Deep Analytics",
+                description: "Explore trends, statistics, and patterns across the entire database"
+              },
+              {
+                icon: Globe,
+                title: "Nationwide Coverage",
+                description: "Access records from 33+ Federal High Courts across Nigeria"
+              }
+            ].map((feature, idx) => {
+              const Icon = feature.icon;
+              return (
+                <div key={idx} className={`p-8 rounded-xl border transition-all duration-200 hover:border-blue-400 ${
+                  isDark
+                    ? "bg-slate-800/50 border-slate-700 hover:shadow-lg hover:shadow-blue-500/10"
+                    : "bg-white border-gray-200 hover:shadow-lg hover:shadow-blue-500/10"
+                }`}>
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 ${
+                    isDark ? "bg-blue-500/20" : "bg-blue-100"
+                  }`}>
+                    <Icon className={`w-6 h-6 ${isDark ? "text-blue-400" : "text-blue-600"}`} />
+                  </div>
+                  <h3 className={`text-lg font-bold mb-3 ${
+                    isDark ? "text-white" : "text-gray-900"
+                  }`}>
+                    {feature.title}
+                  </h3>
+                  <p className={isDark ? "text-gray-400" : "text-gray-600"}>
+                    {feature.description}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

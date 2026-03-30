@@ -4,55 +4,58 @@ import { Scale, Briefcase, Building2, DollarSign } from "lucide-react";
 
 const ResultCard = ({ result, isDark }) => {
   return (
-    <div className={`group border rounded-xl p-6 mb-4 transition-all ${isDark ? "bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/10" : "bg-white border-gray-200 hover:border-blue-400 hover:shadow-md hover:shadow-blue-400/10"}`}>
+    <div className={`group border rounded-lg p-6 mb-3 transition-all duration-200 hover:-translate-y-1 ${
+      isDark
+        ? "bg-slate-800/50 border-slate-700 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/10"
+        : "bg-white border-gray-200 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-500/10"
+    }`}>
       {/* Defendant Name */}
-      <div className="mb-6">
-        <h3 className={`text-2xl font-bold transition-colors ${isDark ? "text-white group-hover:text-blue-300" : "text-gray-900 group-hover:text-blue-600"}`}>
+      <div className="mb-5">
+        <h3 className={`text-xl font-semibold transition-colors duration-200 ${
+          isDark ? "text-white group-hover:text-blue-300" : "text-gray-900 group-hover:text-blue-600"
+        }`}>
           {result.name}
         </h3>
       </div>
 
       {/* Details Grid */}
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 gap-5">
         {/* Offense */}
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Briefcase className={`w-4 h-4 ${isDark ? "text-blue-400" : "text-blue-600"}`} />
-            <p className={`text-sm font-semibold uppercase tracking-wide ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-              Offense
-            </p>
-          </div>
-          <p className={`text-lg font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
+          <p className={`text-xs font-semibold uppercase tracking-wider mb-1.5 ${
+            isDark ? "text-gray-500" : "text-gray-500"
+          }`}>
+            Offense
+          </p>
+          <p className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
             {result.offense}
           </p>
         </div>
 
         {/* Court */}
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Building2 className={`w-4 h-4 ${isDark ? "text-purple-400" : "text-purple-600"}`} />
-            <p className={`text-sm font-semibold uppercase tracking-wide ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-              Court
-            </p>
-          </div>
-          <p className={`text-lg font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
+          <p className={`text-xs font-semibold uppercase tracking-wider mb-1.5 ${
+            isDark ? "text-gray-500" : "text-gray-500"
+          }`}>
+            Court
+          </p>
+          <p className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
             {result.court}
           </p>
         </div>
 
         {/* Prison Term */}
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Scale className={`w-4 h-4 ${isDark ? "text-orange-400" : "text-orange-600"}`} />
-            <p className={`text-sm font-semibold uppercase tracking-wide ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-              Prison Term
-            </p>
-          </div>
-          <p className={`text-lg font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
+          <p className={`text-xs font-semibold uppercase tracking-wider mb-1.5 ${
+            isDark ? "text-gray-500" : "text-gray-500"
+          }`}>
+            Prison Term
+          </p>
+          <p className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
             {result.prison_term}
           </p>
           {result.prison_term_months && (
-            <p className={`text-xs mt-1 ${isDark ? "text-gray-500" : "text-gray-600"}`}>
+            <p className={`text-xs mt-1.5 ${isDark ? "text-gray-600" : "text-gray-500"}`}>
               ({result.prison_term_months} months)
             </p>
           )}

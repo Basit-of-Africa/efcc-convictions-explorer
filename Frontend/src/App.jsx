@@ -6,7 +6,7 @@ import HomePage from "./pages/HomePage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import InsightsPage from "./pages/InsightsPage";
 import AboutPage from "./pages/AboutPage";
-import DocumentationPage from "./pages/DocumentationPage";
+import DeveloperPage from "./pages/DeveloperPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
 import DisclaimerPage from "./pages/DisclaimerPage";
@@ -57,7 +57,8 @@ function App() {
             <Route path="/search" element={<SearchResultsPage isDark={isDark} />} />
             <Route path="/insights" element={<InsightsPage isDark={isDark} />} />
             <Route path="/about" element={<AboutPage isDark={isDark} />} />
-            <Route path="/docs" element={<DocumentationPage isDark={isDark} />} />
+            <Route path="/developers" element={<DeveloperPage isDark={isDark} />} />
+            <Route path="/docs" element={<DeveloperPage isDark={isDark} />} />
             <Route path="/privacy" element={<PrivacyPage isDark={isDark} />} />
             <Route path="/terms" element={<TermsPage isDark={isDark} />} />
             <Route path="/disclaimer" element={<DisclaimerPage isDark={isDark} />} />
@@ -75,8 +76,8 @@ function App() {
                 <h3 className={`font-bold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>Product</h3>
                 <ul className={`space-y-2 text-sm ${isDark ? "text-gray-400" : "text-gray-700"}`}>
                   <li><a href="/" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Features</a></li>
-                  <li><a href="/docs" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Documentation</a></li>
-                  <li><a href="/docs#api" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>API Pricing</a></li>
+                  <li><a href="/developers" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Developer Docs</a></li>
+                  <li><a href="/developers#pricing" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>API Pricing</a></li>
                 </ul>
               </div>
               <div>
@@ -98,7 +99,7 @@ function App() {
               <div>
                 <h3 className={`font-bold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>Resources</h3>
                 <ul className={`space-y-2 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-                  <li><a href="/docs" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Docs</a></li>
+                  <li><a href="/developers" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Developers</a></li>
                   <li><a href="/support" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Support</a></li>
                   <li><a href="/faq" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>FAQ</a></li>
                 </ul>
@@ -111,7 +112,7 @@ function App() {
                   © 2026 FraudCheckr. All rights reserved.
                 </p>
                 <p className={`text-xs mt-4 md:mt-0 ${isDark ? "text-gray-500" : "text-gray-500"}`}>
-                  Providing transparent access to public EFCC conviction records
+                  Providing transparent access to public fraud conviction records from Nigeria's federal courts
                 </p>
               </div>
             </div>
