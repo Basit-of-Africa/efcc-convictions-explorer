@@ -6,7 +6,7 @@ Welcome to the comprehensive documentation for the **EFCC Convictions Explorer**
 
 The EFCC Convictions Explorer is a powerful web application that provides:
 
-- **Searchable Database** - Access 864+ conviction records with detailed information
+- **Searchable Database** - Access 7,788+ conviction records with detailed information
 - **Advanced Filtering** - Filter by offense type, court, defendant name, and more
 - **Statistical Analytics** - View aggregate data about convictions, courts, offense patterns
 - **Modern UI** - User-friendly React dashboard for easy navigation
@@ -15,11 +15,11 @@ The EFCC Convictions Explorer is a powerful web application that provides:
 
 ## 📊 Key Statistics
 
-- **Total Records**: 864 convictions
-- **Courts**: 33 unique courts across Nigeria
-- **Offense Types**: 192 different offense categories
-- **Records with Fines**: 277 convictions include fine amounts
-- **Data Source**: EFCC official conviction records (2020)
+- **Total Records**: 7,788 convictions (2020-2024)
+- **Courts**: 33+ unique courts across Nigeria
+- **Offense Types**: 50+ different offense categories
+- **Data Coverage**: Complete EFCC federal court conviction records
+- **Data Source**: EFCC official conviction records (2020-2024)
 
 ## 🚀 Quick Links
 

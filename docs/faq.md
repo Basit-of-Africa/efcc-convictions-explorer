@@ -6,7 +6,7 @@ Common questions about EFCC Convictions Explorer.
 
 ### What is EFCC Convictions Explorer?
 
-EFCC Convictions Explorer is a web application for searching and analyzing Nigerian EFCC conviction records. It provides a REST API and modern React dashboard to explore 864+ conviction records.
+EFCC Convictions Explorer is a web application for searching and analyzing Nigerian EFCC conviction records. It provides a REST API and modern React dashboard to explore 7,788+ conviction records from 2020-2024.
 
 ### How much does it cost?
 
@@ -18,13 +18,13 @@ Yes, subject to the license. Check [LICENSE](../LICENSE) file for details.
 
 ### Is the data verified?
 
-Yes, all data comes from official EFCC conviction records from 2020.
+Yes, all data comes from official EFCC conviction records from court proceedings (2020-2024).
 
 ### What's included in the platform?
 
 - Backend REST API (FastAPI)
 - Frontend dashboard (React)
-- 864 conviction records
+- 7,788 conviction records (2020-2024)
 - Statistical analytics
 - Full documentation
 
@@ -74,13 +74,13 @@ Approximately:
 
 ### How many records are in the database?
 
-**864 conviction records** from 827 unique cases.
+**7,788 conviction records** (2020-2024).
 
 Some cases involve multiple defendants, which are split into separate records for analysis.
 
 ### What years does the data cover?
 
-The current dataset is from **2020**. It can be updated with new data from EFCC.
+The current dataset covers **2020-2024**. It can be updated with new data from EFCC.
 
 ### Can I import my own data?
 

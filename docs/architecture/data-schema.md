@@ -113,30 +113,27 @@ JANE SMITH,MONEY LAUNDERING,10 YEARS,120,10000000,,SUPREME COURT
 
 ```json
 {
-  "total_cases": 864,
-  "most_common_offense": "CYBER CRIME",
-  "average_prison_term_months": 98.0,
+  "total_cases": 7788,
+  "most_common_offense": "CYBERCRIME",
+  "average_prison_term_months": 45.2,
   "unique_courts": 33,
-  "unique_offenses": 192
+  "unique_offenses": 50
 }
 ```
 
 ## Dataset Statistics
 
 ### By the Numbers
-- **Total Records**: 864 (827 unique + 37 split defendants)
-- **Unique Courts**: 33
-- **Unique Offenses**: 192
-- **Records with Fines**: 277 (32%)
-- **Records with Restitution**: ~50 (6%)
-- **Avg Prison Term**: 98 months (~8.2 years)
+- **Total Records**: 7,788 conviction records
+- **Coverage Period**: 2020-2024 (complete EFCC federal court convictions)
+- **Unique Courts**: 33+ federal courts
+- **Unique Offenses**: 50+ offense categories
+- **Data Source**: EFCC official conviction records merged from 2020-2024
 
-### Top Offenses
-1. CYBER CRIME - 245 cases
-2. OBT (Online Business Transactions) - 64 cases
-3. IMPERSONATION - 40 cases
-4. Cheating - 16 cases
-5. Possession of Fraudulent Documents - 29 cases
+### Data Updates
+- Last processed: 2020-2024 EFCC conviction database
+- Records cover federal high courts across Nigeria
+- Multiple defendants are split into separate records for analysis
 
 ## Data Quality
 

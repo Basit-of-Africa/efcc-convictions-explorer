@@ -26,8 +26,11 @@ def load_conviction_data():
     
     # Try to load from CSV file - check multiple locations
     possible_paths = [
+        Path("efcc_convictions_updated.csv"),
         Path("efcc_convictions.csv"),
+        Path(__file__).parent / "efcc_convictions_updated.csv",
         Path(__file__).parent / "efcc_convictions.csv",
+        Path.cwd() / "efcc_convictions_updated.csv",
         Path.cwd() / "efcc_convictions.csv",
     ]
     

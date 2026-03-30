@@ -135,10 +135,10 @@ const HomePage = ({ isDark }) => {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             {[
-              { label: "Conviction Records", value: "864" },
-              { label: "Federal Courts", value: "33" },
-              { label: "Offense Types", value: "192" },
-              { label: "Years Covered", value: "2020" }
+              { label: "Conviction Records", value: "7,788" },
+              { label: "Federal Courts", value: "33+" },
+              { label: "Offense Types", value: "50+" },
+              { label: "Years Covered", value: "2020-2024" }
             ].map((stat, idx) => (
               <div key={idx} className="text-center">
                 <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-2">
@@ -186,7 +186,7 @@ const HomePage = ({ isDark }) => {
               },
               {
                 q: "How often is the data updated?",
-                a: "Our database is updated regularly with new convictions. The current dataset covers convictions from 2020 with ongoing updates as new cases are finalized."
+                a: "Our database is updated regularly with new convictions. The current dataset covers convictions from 2020-2024 with ongoing updates as new cases are finalized."
               },
               {
                 q: "Can I download the data?",
