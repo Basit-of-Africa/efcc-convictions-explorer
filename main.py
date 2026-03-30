@@ -38,7 +38,7 @@ def load_conviction_data():
     
     if csv_file:
         try:
-            df = pd.read_csv(csv_file)
+            df = pd.read_csv(csv_file, engine='python')
             raw_data = df.to_dict(orient="records")
             convictions_data = process_efcc_data(raw_data)
             print(f"[LOAD] SUCCESS: Loaded {len(convictions_data)} conviction records from {csv_file}")
