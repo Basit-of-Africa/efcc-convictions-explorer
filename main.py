@@ -10,6 +10,7 @@ from contextlib import asynccontextmanager
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from models import ConvictionRecord, PaginatedResponse, StatsResponse, HealthResponse
 from data_cleaning import process_efcc_data
@@ -71,6 +72,21 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Configure CORS to allow frontend requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "http://0.0.0.0:3000",
+        "http://0.0.0.0:3001",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ============================================================================
 # ENDPOINTS
