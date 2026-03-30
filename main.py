@@ -76,16 +76,30 @@ app = FastAPI(
 )
 
 # Configure CORS to allow frontend requests
+allowed_origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
+    "http://0.0.0.0:3000",
+    "http://0.0.0.0:3001",
+    "http://localhost:5173",  # Vite dev server
+]
+
+# Add production origins from environment variable
+if os.getenv("ENVIRONMENT") == "production":
+    vercel_url = os.getenv("VERCEL_URL")
+    if vercel_url:
+        allowed_origins.append(f"https://{vercel_url}")
+    
+    # Add custom production domain
+    custom_domain = os.getenv("CUSTOM_DOMAIN")
+    if custom_domain:
+        allowed_origins.append(f"https://{custom_domain}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:3001",
-        "http://0.0.0.0:3000",
-        "http://0.0.0.0:3001",
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

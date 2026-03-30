@@ -13,12 +13,13 @@ const SearchResultsPage = ({ isDark }) => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
   useEffect(() => {
     if (query) {
       setLoading(true);
       axios
-        .get(`http://127.0.0.1:8000/search?name=${query}`)
+        .get(`${API_URL}/search?name=${query}`)
         .then((response) => {
           setResults(response.data.data); // Extract the data array from paginated response
           setLoading(false);

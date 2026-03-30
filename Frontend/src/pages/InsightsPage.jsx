@@ -9,11 +9,12 @@ const InsightsPage = ({ isDark }) => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://127.0.0.1:8000/stats")
+      .get(`${API_URL}/stats`)
       .then((response) => {
         setStats(response.data);
         setLoading(false);
