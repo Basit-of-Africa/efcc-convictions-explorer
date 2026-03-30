@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, TrendingUp } from 'lucide-react';
 import { convictionsAPI } from '../services/api';
-import DataTable from './DataTable';
-import StatsPanel from './StatsPanel';
-import SearchBar from './SearchBar';
+import DataTable from '../components/DataTable';
+import StatsPanel from '../components/StatsPanel';
+import SearchBar from '../components/SearchBar';
 
 export default function Dashboard() {
   const [convictions, setConvictions] = useState([]);
