@@ -1,0 +1,25 @@
+{
+  "title": "EFCC Convictions Explorer",
+  "description": "Comprehensive guide for the EFCC Convictions Explorer platform",
+  "author": "EFCC Data Team",
+  "language": "en",
+  "gitbook": ">=3.0.0",
+  "structure": {
+    "readme": "README.md",
+    "summary": "SUMMARY.md"
+  },
+  "styles": {
+    "website": "styles/website.css"
+  },
+  "plugins": [
+    "search",
+    "highlight",
+    "-sharing",
+    "github"
+  ],
+  "pluginsConfig": {
+    "github": {
+      "url": "https://github.com/yourusername/efcc-convictions-explorer"
+    }
+  }
+}
