@@ -1,6 +1,6 @@
-# EFCC Convictions Explorer
+# Nigeria's Fraud Conviction Records Explorer
 
-A production-ready FastAPI backend for processing and analyzing publicly available EFCC (Economic and Financial Crimes Commission) conviction records from Nigeria.
+A production-ready FastAPI backend for processing and analyzing publicly available fraud conviction records from Nigeria's federal courts.
 
 ## 🎯 Features
 

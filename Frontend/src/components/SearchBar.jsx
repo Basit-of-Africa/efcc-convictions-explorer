@@ -44,7 +44,7 @@ const SearchBar = ({ initialValue = "", isDark = false }) => {
       </div>
       
       <p className={`text-center text-sm mt-4 ${isDark ? "text-gray-500" : "text-gray-600"}`}>
-        Search 864 verified EFCC conviction records
+        Search 7,788 verified fraud conviction records from Nigeria's federal courts
       </p>
     </form>
   );

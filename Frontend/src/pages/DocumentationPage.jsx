@@ -61,7 +61,7 @@ const DocumentationPage = ({ isDark }) => {
               <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>Database Overview</h3>
               <div className={`bg-gradient-to-br ${cardBgClass} p-6 rounded-xl border`}>
                 <p className={textSecondaryClass}>
-                  FraudCheckr provides access to verified EFCC conviction records including:
+                  FraudCheckr provides access to verified fraud conviction records from Nigeria's federal courts including:
                 </p>
                 <ul className={`mt-4 space-y-2 ${textSecondaryClass}`}>
                   <li>✓ 864 total conviction records</li>

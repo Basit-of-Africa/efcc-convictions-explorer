@@ -1,10 +1,10 @@
-# EFCC Convictions Explorer
+# Nigeria's Fraud Conviction Records
 
-Welcome to the comprehensive documentation for the **EFCC Convictions Explorer** platform — a modern, full-stack application for searching, analyzing, and exploring Nigerian EFCC (Economic and Financial Crimes Commission) conviction records.
+Welcome to the comprehensive documentation for the **Nigeria's Fraud Conviction Records** platform — a modern, full-stack application for searching, analyzing, and exploring fraud conviction records from Nigeria's federal courts.
 
-## 🎯 What is EFCC Convictions Explorer?
+## 🎯 What is Nigeria's Fraud Conviction Records?
 
-The EFCC Convictions Explorer is a powerful web application that provides:
+Nigeria's Fraud Conviction Records is a powerful web application that provides:
 
 - **Searchable Database** - Access 7,788+ conviction records with detailed information
 - **Advanced Filtering** - Filter by offense type, court, defendant name, and more
@@ -18,8 +18,8 @@ The EFCC Convictions Explorer is a powerful web application that provides:
 - **Total Records**: 7,788 convictions (2020-2024)
 - **Courts**: 33+ unique courts across Nigeria
 - **Offense Types**: 50+ different offense categories
-- **Data Coverage**: Complete EFCC federal court conviction records
-- **Data Source**: EFCC official conviction records (2020-2024)
+- **Data Coverage**: Complete fraud conviction records from Nigeria's federal courts
+- **Data Source**: Public court records and official proceedings (2020-2024)
 
 ## 🚀 Quick Links
 
@@ -71,7 +71,7 @@ This documentation covers:
 ## 🔐 Security & Privacy
 
 - No user authentication required for data access
-- Public EFCC conviction records only
+- Public fraud conviction records from Nigeria's federal courts
 - Data is read-only (no modifications to source data)
 - All personal information is from public records
 

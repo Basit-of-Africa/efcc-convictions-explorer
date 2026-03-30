@@ -7,6 +7,12 @@ import SearchResultsPage from "./pages/SearchResultsPage";
 import InsightsPage from "./pages/InsightsPage";
 import AboutPage from "./pages/AboutPage";
 import DocumentationPage from "./pages/DocumentationPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import TermsPage from "./pages/TermsPage";
+import DisclaimerPage from "./pages/DisclaimerPage";
+import ContactPage from "./pages/ContactPage";
+import FAQPage from "./pages/FAQPage";
+import SupportPage from "./pages/SupportPage";
 
 function App() {
   const [isDark, setIsDark] = useState(false);
@@ -52,6 +58,12 @@ function App() {
             <Route path="/insights" element={<InsightsPage isDark={isDark} />} />
             <Route path="/about" element={<AboutPage isDark={isDark} />} />
             <Route path="/docs" element={<DocumentationPage isDark={isDark} />} />
+            <Route path="/privacy" element={<PrivacyPage isDark={isDark} />} />
+            <Route path="/terms" element={<TermsPage isDark={isDark} />} />
+            <Route path="/disclaimer" element={<DisclaimerPage isDark={isDark} />} />
+            <Route path="/contact" element={<ContactPage isDark={isDark} />} />
+            <Route path="/faq" element={<FAQPage isDark={isDark} />} />
+            <Route path="/support" element={<SupportPage isDark={isDark} />} />
           </Routes>
         </main>
         
@@ -71,24 +83,24 @@ function App() {
                 <h3 className={`font-bold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>Company</h3>
                 <ul className={`space-y-2 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
                   <li><a href="/about" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>About</a></li>
-                  <li><a href="#" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Blog</a></li>
-                  <li><a href="#" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Contact</a></li>
+                  <li><a href="/contact" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Contact</a></li>
+                  <li><a href="/support" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Support</a></li>
                 </ul>
               </div>
               <div>
                 <h3 className={`font-bold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>Legal</h3>
                 <ul className={`space-y-2 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-                  <li><a href="#" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Privacy</a></li>
-                  <li><a href="#" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Terms</a></li>
-                  <li><a href="#" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Disclaimer</a></li>
+                  <li><a href="/privacy" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Privacy</a></li>
+                  <li><a href="/terms" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Terms</a></li>
+                  <li><a href="/disclaimer" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Disclaimer</a></li>
                 </ul>
               </div>
               <div>
                 <h3 className={`font-bold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>Resources</h3>
                 <ul className={`space-y-2 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
                   <li><a href="/docs" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Docs</a></li>
-                  <li><a href="#" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Support</a></li>
-                  <li><a href="#" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>FAQ</a></li>
+                  <li><a href="/support" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>Support</a></li>
+                  <li><a href="/faq" className={`${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}>FAQ</a></li>
                 </ul>
               </div>
             </div>

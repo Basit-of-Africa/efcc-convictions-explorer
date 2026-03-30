@@ -1,7 +1,7 @@
 {
-  "title": "EFCC Convictions Explorer",
-  "description": "Comprehensive guide for the EFCC Convictions Explorer platform",
-  "author": "EFCC Data Team",
+  "title": "Nigeria's Fraud Conviction Records",
+  "description": "Comprehensive guide for Nigeria's Fraud Conviction Records platform",
+  "author": "FraudCheckr Data Team",
   "language": "en",
   "gitbook": ">=3.0.0",
   "structure": {

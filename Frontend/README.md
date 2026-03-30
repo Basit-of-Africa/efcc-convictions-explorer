@@ -1,6 +1,6 @@
-# EFCC Convictions Explorer - Frontend
+# Nigeria's Fraud Conviction Records - Frontend
 
-A modern React + Vite dashboard for exploring and analyzing EFCC conviction records.
+A modern React + Vite dashboard for exploring and analyzing fraud conviction records from Nigeria's federal courts.
 
 ## Features
 

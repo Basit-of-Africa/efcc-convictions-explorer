@@ -1,11 +1,11 @@
 # Changelog
 
-All notable changes to EFCC Convictions Explorer will be documented in this file.
+All notable changes to Nigeria's Fraud Conviction Records will be documented in this file.
 
 ## [1.0.0] - 2026-03-30
 
 ### Added
-- ✨ Initial release of EFCC Convictions Explorer
+- ✨ Initial release of Nigeria's Fraud Conviction Records
 - 🎉 FastAPI backend with REST API
 - ✨ React + Vite frontend dashboard
 - 🔍 Defendant name search functionality

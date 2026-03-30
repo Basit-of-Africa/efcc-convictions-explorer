@@ -1,6 +1,6 @@
-# Contributing Guidelines
+# Contributing to Nigeria's Fraud Conviction Records
 
-Thank you for your interest in contributing to EFCC Convictions Explorer! 🎉
+Thank you for your interest in contributing to Nigeria's Fraud Conviction Records! 🎉
 
 ## Code of Conduct
 

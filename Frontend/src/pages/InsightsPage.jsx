@@ -50,7 +50,7 @@ const InsightsPage = ({ isDark }) => {
             Conviction Intelligence
           </h1>
           <p className={`text-xl ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-            Deep dive into EFCC fraud conviction data and trends
+            Deep dive into Nigeria's fraud conviction data and trends
           </p>
         </div>
 
@@ -137,7 +137,7 @@ const InsightsPage = ({ isDark }) => {
                     {stats.most_common_offense}
                   </p>
                   <p className={`mt-2 ${isDark ? "text-gray-500" : "text-gray-600"}`}>
-                    Most frequently prosecuted offense in EFCC records
+                    Most frequently prosecuted offense in fraud records
                   </p>
                 </div>
               </div>
@@ -164,7 +164,7 @@ const InsightsPage = ({ isDark }) => {
                 <p className={`mb-4 ${isDark ? "text-gray-300" : "text-gray-600"}`}>
                   Convictions span {stats.unique_offenses} different offense types,
                   from cyber crimes to embezzlement. The variation shows the wide
-                  scope of EFCC's enforcement activities.
+                  scope of federal fraud prosecution activities.
                 </p>
                 <div className={`font-semibold ${isDark ? "text-purple-400" : "text-purple-600"}`}>
                   {stats.unique_offenses} distinct offense types
@@ -177,7 +177,7 @@ const InsightsPage = ({ isDark }) => {
                 </h3>
                 <p className={`mb-4 ${isDark ? "text-gray-300" : "text-gray-600"}`}>
                   Cases are distributed across {stats.unique_courts} Federal High
-                  Courts nationwide, reflecting EFCC's presence throughout Nigeria's
+                  Courts nationwide, reflecting federal prosecution activities throughout Nigeria's
                   federal judicial system.
                 </p>
                 <div className={`font-semibold ${isDark ? "text-green-400" : "text-green-600"}`}>

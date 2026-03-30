@@ -17,11 +17,11 @@ const HomePage = ({ isDark }) => {
         <div className="relative max-w-5xl w-full z-10">
           <div className="text-center">
             <h1 className={`text-6xl md:text-7xl font-bold ${isDark ? "text-white" : "text-gray-900"} mb-6 leading-tight`}>
-              Check EFCC Conviction
+              Nigeria's Fraud Conviction
               <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"> Records</span>
             </h1>
             <p className={`text-xl ${isDark ? "text-gray-300" : "text-gray-600"} mb-12 max-w-2xl mx-auto`}>
-              Access publicly verified EFCC (Economic and Financial Crimes Commission) conviction records. Search by defendant name, offense type, or court location. Transparent, accurate, and always up-to-date.
+              Access publicly verified fraud conviction records from Nigeria's federal courts. Search by defendant name, offense type, or court location. Transparent, accurate, and always up-to-date.
             </p>
             
             <div className="mb-16">
@@ -53,7 +53,7 @@ const HomePage = ({ isDark }) => {
             Everything You Need to Know
           </h2>
           <p className={`text-center mb-16 max-w-2xl mx-auto ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-            Comprehensive tools to search, analyze, and understand EFCC conviction records
+            Comprehensive tools to search, analyze, and understand Nigeria's fraud conviction records
           </p>
 
           <div className="grid md:grid-cols-3 gap-8">

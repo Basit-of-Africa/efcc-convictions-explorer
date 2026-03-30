@@ -27,7 +27,7 @@ const AboutPage = ({ isDark }) => {
             <Target className="w-12 h-12 text-blue-500 mb-4" />
             <h2 className={`text-2xl font-bold ${headingClass} mb-4`}>Our Mission</h2>
             <p className={textSecondaryClass}>
-              To reduce financial crime by providing journalists, researchers, compliance professionals, and the general public with transparent access to verified EFCC conviction records. We believe in making official data accessible to everyone.
+              To reduce financial crime by providing journalists, researchers, compliance professionals, and the general public with transparent access to verified fraud conviction records from Nigeria's federal courts. We believe in making official data accessible to everyone.
             </p>
           </div>
 
@@ -47,7 +47,7 @@ const AboutPage = ({ isDark }) => {
             {[
               {
                 title: "Verified Data",
-                description: "All conviction records are sourced from official EFCC proceedings and court documents",
+                description: "All conviction records are sourced from official federal court proceedings and documented cases",
                 icon: Shield
               },
               {
@@ -132,7 +132,7 @@ const AboutPage = ({ isDark }) => {
           <Users className="w-16 h-16 mx-auto text-blue-500 mb-6" />
           <h2 className={`text-3xl font-bold ${headingClass} mb-4`}>Our Team</h2>
           <p className={`${textSecondaryClass} max-w-2xl mx-auto`}>
-            FraudCheckr is built and maintained by a dedicated team of software engineers, data specialists, and legal experts committed to transparency and accountability. We work closely with the EFCC and civil society organizations to ensure data accuracy and integrity.
+            FraudCheckr is built and maintained by a dedicated team of software engineers, data specialists, and legal experts committed to transparency and accountability. We work closely with federal court records and civil society organizations to ensure data accuracy and integrity.
           </p>
         </div>
 
