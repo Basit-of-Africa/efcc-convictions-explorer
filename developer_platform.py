@@ -7,7 +7,6 @@ for issuing paid API keys behind Paystack.
 
 from __future__ import annotations
 
-import base64
 import hashlib
 import hmac
 import json
@@ -75,6 +74,21 @@ class ApiKeyRecord:
     last_used_at: str | None
 
 
+@dataclass
+class ScreeningReportRecord:
+    report_id: str
+    user_id: int
+    query_name: str
+    query_aliases: list[str]
+    query_location: str | None
+    status: str
+    confidence: float
+    exact_matches: int
+    possible_matches: int
+    total_matches: int
+    created_at: str
+
+
 class DeveloperPlatform:
     def __init__(self, db_path: str | None = None):
         default_path = Path(__file__).parent / "developer_platform.db"
@@ -132,6 +146,23 @@ class DeveloperPlatform:
                     status TEXT NOT NULL,
                     created_at TEXT NOT NULL,
                     last_used_at TEXT,
+                    FOREIGN KEY (user_id) REFERENCES developer_users(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS screening_reports (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    report_id TEXT NOT NULL UNIQUE,
+                    user_id INTEGER NOT NULL,
+                    query_name TEXT NOT NULL,
+                    query_aliases_json TEXT NOT NULL,
+                    query_location TEXT,
+                    status TEXT NOT NULL,
+                    confidence REAL NOT NULL,
+                    exact_matches INTEGER NOT NULL,
+                    possible_matches INTEGER NOT NULL,
+                    total_matches INTEGER NOT NULL,
+                    matches_json TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
                     FOREIGN KEY (user_id) REFERENCES developer_users(id)
                 );
                 """
@@ -463,6 +494,111 @@ class DeveloperPlatform:
             email=row["email"],
             created_at=row["created_at"],
         )
+
+    def create_screening_report(
+        self,
+        *,
+        user_id: int,
+        query_name: str,
+        query_aliases: list[str],
+        query_location: str | None,
+        status: str,
+        confidence: float,
+        exact_matches: int,
+        possible_matches: int,
+        total_matches: int,
+        matches: list[dict[str, Any]],
+    ) -> str:
+        report_id = f"scr_{secrets.token_urlsafe(12)}"
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO screening_reports (
+                    report_id, user_id, query_name, query_aliases_json, query_location,
+                    status, confidence, exact_matches, possible_matches, total_matches,
+                    matches_json, created_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    report_id,
+                    user_id,
+                    query_name,
+                    json.dumps(query_aliases),
+                    query_location,
+                    status,
+                    confidence,
+                    exact_matches,
+                    possible_matches,
+                    total_matches,
+                    json.dumps(matches),
+                    now_iso(),
+                ),
+            )
+        return report_id
+
+    def get_screening_report(self, user_id: int, report_id: str) -> dict[str, Any] | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                """
+                SELECT *
+                FROM screening_reports
+                WHERE user_id = ? AND report_id = ?
+                """,
+                (user_id, report_id),
+            ).fetchone()
+
+        if row is None:
+            return None
+
+        return {
+            "report_id": row["report_id"],
+            "query": {
+                "full_name": row["query_name"],
+                "aliases": json.loads(row["query_aliases_json"]),
+                "location": row["query_location"],
+            },
+            "status": row["status"],
+            "confidence": row["confidence"],
+            "summary": {
+                "exact_matches": row["exact_matches"],
+                "possible_matches": row["possible_matches"],
+                "total_matches": row["total_matches"],
+            },
+            "matches": json.loads(row["matches_json"]),
+            "created_at": row["created_at"],
+        }
+
+    def list_screening_reports(self, user_id: int, limit: int = 20) -> list[ScreeningReportRecord]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT report_id, user_id, query_name, query_aliases_json, query_location,
+                       status, confidence, exact_matches, possible_matches, total_matches, created_at
+                FROM screening_reports
+                WHERE user_id = ?
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (user_id, limit),
+            ).fetchall()
+
+        return [
+            ScreeningReportRecord(
+                report_id=row["report_id"],
+                user_id=row["user_id"],
+                query_name=row["query_name"],
+                query_aliases=json.loads(row["query_aliases_json"]),
+                query_location=row["query_location"],
+                status=row["status"],
+                confidence=row["confidence"],
+                exact_matches=row["exact_matches"],
+                possible_matches=row["possible_matches"],
+                total_matches=row["total_matches"],
+                created_at=row["created_at"],
+            )
+            for row in rows
+        ]
 
 
 def default_plan_amount_kobo() -> int:

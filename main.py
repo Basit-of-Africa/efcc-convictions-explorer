@@ -6,6 +6,7 @@ A REST API for searching and analyzing EFCC conviction records.
 
 import os
 import json
+from difflib import SequenceMatcher
 from pathlib import Path
 from contextlib import asynccontextmanager
 import pandas as pd
@@ -25,6 +26,13 @@ from models import (
     DeveloperProfileResponse,
     DeveloperSignupRequest,
     PaginatedResponse,
+    ScreeningMatchRecord,
+    ScreeningQuery,
+    ScreeningReportListItem,
+    ScreeningReportListResponse,
+    ScreeningReportResponse,
+    ScreeningRequest,
+    ScreeningSummary,
     StatsResponse,
     HealthResponse,
 )
@@ -195,6 +203,103 @@ def build_paginated_response(records: list[dict], limit: int, offset: int) -> Pa
         data=[ConvictionRecord(**record) for record in paginated],
     )
 
+
+def normalize_screening_value(value: str | None) -> str:
+    return " ".join((value or "").strip().upper().split())
+
+
+def score_name_match(candidate_name: str, query_name: str) -> tuple[str, float]:
+    normalized_candidate = normalize_screening_value(candidate_name)
+    normalized_query = normalize_screening_value(query_name)
+
+    if not normalized_candidate or not normalized_query:
+        return "weak", 0.0
+
+    if normalized_candidate == normalized_query:
+        return "exact", 1.0
+
+    if normalized_query in normalized_candidate or normalized_candidate in normalized_query:
+        return "possible", 0.9
+
+    ratio = SequenceMatcher(None, normalized_candidate, normalized_query).ratio()
+    if ratio >= 0.85:
+        return "possible", round(ratio, 2)
+    if ratio >= 0.7:
+        return "weak", round(ratio, 2)
+
+    return "weak", round(ratio, 2)
+
+
+def build_screening_report(
+    *,
+    query_name: str,
+    aliases: list[str],
+    location: str | None,
+    limit: int,
+) -> dict:
+    search_terms = [query_name, *aliases]
+    ranked_matches: list[dict] = []
+
+    for record in convictions_data:
+        best_match_type = "weak"
+        best_confidence = 0.0
+
+        for term in search_terms:
+            match_type, confidence = score_name_match(record.get("name", ""), term)
+            if confidence > best_confidence:
+                best_match_type = match_type
+                best_confidence = confidence
+
+        if best_confidence < 0.7:
+            continue
+
+        if location:
+            normalized_location = normalize_screening_value(location)
+            normalized_court = normalize_screening_value(record.get("court", ""))
+            if normalized_location and normalized_location not in normalized_court:
+                best_confidence = round(max(0.7, best_confidence - 0.08), 2)
+                if best_confidence < 0.75 and best_match_type == "possible":
+                    best_match_type = "weak"
+
+        ranked_matches.append(
+            {
+                "match_type": best_match_type,
+                "confidence": round(best_confidence, 2),
+                "record": record,
+            }
+        )
+
+    ranked_matches.sort(
+        key=lambda item: (
+            0 if item["match_type"] == "exact" else 1,
+            -item["confidence"],
+            item["record"].get("name", ""),
+        )
+    )
+    ranked_matches = ranked_matches[:limit]
+
+    exact_matches = sum(1 for item in ranked_matches if item["match_type"] == "exact")
+    possible_matches = sum(1 for item in ranked_matches if item["match_type"] == "possible")
+    highest_confidence = max((item["confidence"] for item in ranked_matches), default=0.0)
+
+    if exact_matches > 0 or highest_confidence >= 0.95:
+        status_value = "match"
+    elif ranked_matches:
+        status_value = "review"
+    else:
+        status_value = "clear"
+
+    return {
+        "status": status_value,
+        "confidence": round(highest_confidence, 2),
+        "summary": {
+            "exact_matches": exact_matches,
+            "possible_matches": possible_matches,
+            "total_matches": len(ranked_matches),
+        },
+        "matches": ranked_matches,
+    }
+
 # ============================================================================
 # ENDPOINTS
 # ============================================================================
@@ -335,6 +440,58 @@ async def list_developer_api_keys(user=Depends(get_dashboard_user)):
             )
             for item in keys
         ],
+    )
+
+
+@app.get(
+    "/developer/reports",
+    response_model=ScreeningReportListResponse,
+    summary="List recent developer screening reports",
+    tags=["Developer Reports"],
+)
+async def list_developer_reports(user=Depends(get_dashboard_user)):
+    reports = developer_platform.list_screening_reports(user.id)
+    return ScreeningReportListResponse(
+        reports=[
+            ScreeningReportListItem(
+                report_id=item.report_id,
+                full_name=item.query_name,
+                status=item.status,
+                confidence=item.confidence,
+                total_matches=item.total_matches,
+                created_at=item.created_at,
+            )
+            for item in reports
+        ]
+    )
+
+
+@app.get(
+    "/developer/reports/{report_id}",
+    response_model=ScreeningReportResponse,
+    summary="Get saved screening report",
+    tags=["Developer Reports"],
+)
+async def get_developer_report(report_id: str, user=Depends(get_dashboard_user)):
+    report = developer_platform.get_screening_report(user.id, report_id)
+    if report is None:
+        raise HTTPException(status_code=404, detail="Screening report not found")
+
+    return ScreeningReportResponse(
+        report_id=report["report_id"],
+        status=report["status"],
+        confidence=report["confidence"],
+        query=ScreeningQuery(**report["query"]),
+        summary=ScreeningSummary(**report["summary"]),
+        matches=[
+            ScreeningMatchRecord(
+                match_type=item["match_type"],
+                confidence=item["confidence"],
+                record=ConvictionRecord(**item["record"]),
+            )
+            for item in report["matches"]
+        ],
+        created_at=report["created_at"],
     )
 
 
@@ -679,6 +836,68 @@ async def get_stats():
 async def developer_get_stats(user=Depends(get_paid_api_user)):
     del user
     return await get_stats()
+
+
+@app.post(
+    "/developer/v1/screen",
+    response_model=ScreeningReportResponse,
+    summary="Paid developer API: create screening report",
+    tags=["Developer API"],
+)
+async def developer_screen_person(
+    payload: ScreeningRequest,
+    user=Depends(get_paid_api_user),
+):
+    if not convictions_data:
+        raise HTTPException(status_code=404, detail="No conviction data loaded")
+
+    normalized_name = normalize_screening_value(payload.full_name)
+    normalized_aliases = [
+        normalized_alias
+        for normalized_alias in (normalize_screening_value(alias) for alias in payload.aliases)
+        if normalized_alias
+    ]
+    normalized_location = normalize_screening_value(payload.location) or None
+
+    report = build_screening_report(
+        query_name=normalized_name,
+        aliases=normalized_aliases,
+        location=normalized_location,
+        limit=payload.limit,
+    )
+    report_id = developer_platform.create_screening_report(
+        user_id=user.id,
+        query_name=normalized_name,
+        query_aliases=normalized_aliases,
+        query_location=normalized_location,
+        status=report["status"],
+        confidence=report["confidence"],
+        exact_matches=report["summary"]["exact_matches"],
+        possible_matches=report["summary"]["possible_matches"],
+        total_matches=report["summary"]["total_matches"],
+        matches=report["matches"],
+    )
+
+    saved_report = developer_platform.get_screening_report(user.id, report_id)
+    if saved_report is None:
+        raise HTTPException(status_code=500, detail="Unable to load saved screening report")
+
+    return ScreeningReportResponse(
+        report_id=saved_report["report_id"],
+        status=saved_report["status"],
+        confidence=saved_report["confidence"],
+        query=ScreeningQuery(**saved_report["query"]),
+        summary=ScreeningSummary(**saved_report["summary"]),
+        matches=[
+            ScreeningMatchRecord(
+                match_type=item["match_type"],
+                confidence=item["confidence"],
+                record=ConvictionRecord(**item["record"]),
+            )
+            for item in saved_report["matches"]
+        ],
+        created_at=saved_report["created_at"],
+    )
 
 
 # ============================================================================

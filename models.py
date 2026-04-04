@@ -108,3 +108,51 @@ class DeveloperApiKeysResponse(BaseModel):
 class DeveloperApiKeyIssueResponse(BaseModel):
     api_key: str = Field(..., description="Newly issued API key shown once")
     message: str = Field(..., description="Issuance message")
+
+
+class ScreeningRequest(BaseModel):
+    full_name: str = Field(..., min_length=2, description="Person name to screen")
+    aliases: list[str] = Field(default_factory=list, description="Optional aliases for matching")
+    location: Optional[str] = Field(None, description="Optional location context")
+    limit: int = Field(5, ge=1, le=20, description="Maximum matches to return")
+
+
+class ScreeningMatchRecord(BaseModel):
+    match_type: str = Field(..., description="Match classification such as exact or possible")
+    confidence: float = Field(..., description="Confidence score between 0 and 1")
+    record: ConvictionRecord = Field(..., description="Matched conviction record")
+
+
+class ScreeningSummary(BaseModel):
+    exact_matches: int = Field(..., description="Number of exact matches")
+    possible_matches: int = Field(..., description="Number of possible matches")
+    total_matches: int = Field(..., description="Total matches returned")
+
+
+class ScreeningQuery(BaseModel):
+    full_name: str = Field(..., description="Normalized query name")
+    aliases: list[str] = Field(default_factory=list, description="Normalized aliases")
+    location: Optional[str] = Field(None, description="Normalized location")
+
+
+class ScreeningReportResponse(BaseModel):
+    report_id: str = Field(..., description="Saved screening report identifier")
+    status: str = Field(..., description="Screening outcome: clear, review, or match")
+    confidence: float = Field(..., description="Highest screening confidence")
+    query: ScreeningQuery = Field(..., description="Normalized search payload")
+    summary: ScreeningSummary = Field(..., description="Result counts")
+    matches: list[ScreeningMatchRecord] = Field(..., description="Ordered screening matches")
+    created_at: Optional[str] = Field(None, description="Report creation timestamp")
+
+
+class ScreeningReportListItem(BaseModel):
+    report_id: str = Field(..., description="Saved screening report identifier")
+    full_name: str = Field(..., description="Original query name")
+    status: str = Field(..., description="Screening outcome")
+    confidence: float = Field(..., description="Highest screening confidence")
+    total_matches: int = Field(..., description="Total matches found")
+    created_at: str = Field(..., description="Report creation timestamp")
+
+
+class ScreeningReportListResponse(BaseModel):
+    reports: list[ScreeningReportListItem] = Field(..., description="Recent screening reports")
