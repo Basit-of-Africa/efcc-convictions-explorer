@@ -25,6 +25,15 @@ npm run dev
 
 The frontend will run on `http://localhost:3000`
 
+### Configure API URL
+Create `Frontend/.env.local` when the frontend needs to talk to a remote or tunneled backend:
+
+```bash
+VITE_API_URL=https://your-api-subdomain.opentunnel.dev
+```
+
+Without `VITE_API_URL`, the app only falls back to `http://127.0.0.1:8000` when opened locally on `localhost`.
+
 ### Build for Production
 ```bash
 npm run build
@@ -46,7 +55,11 @@ npm run build
 
 ## Usage
 
-The dashboard automatically connects to the backend API at `http://localhost:8000` and provides:
+For local development, the dashboard automatically connects to `http://127.0.0.1:8000`.
+
+For OpenTunnel or any remote frontend URL, set `VITE_API_URL` to the backend tunnel URL before starting Vite so browser requests do not point to the visitor's own localhost.
+
+The dashboard provides:
 
 - **Health Check**: Verifies API connectivity
 - **Statistics Panel**: Shows total cases, courts, offenses, and average prison terms

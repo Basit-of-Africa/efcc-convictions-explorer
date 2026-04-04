@@ -55,3 +55,56 @@ class HealthResponse(BaseModel):
     
     status: str = Field(..., description="Service status")
     message: str = Field(..., description="Status message")
+
+
+class DeveloperSignupRequest(BaseModel):
+    email: str = Field(..., description="Developer account email address")
+    password: str = Field(..., min_length=8, description="Developer account password")
+
+
+class DeveloperLoginRequest(BaseModel):
+    email: str = Field(..., description="Developer account email address")
+    password: str = Field(..., min_length=8, description="Developer account password")
+
+
+class DeveloperAuthResponse(BaseModel):
+    access_token: str = Field(..., description="Developer dashboard session token")
+    token_type: str = Field(default="bearer", description="Token type")
+    email: str = Field(..., description="Developer account email")
+
+
+class DeveloperProfileResponse(BaseModel):
+    email: str = Field(..., description="Developer account email")
+    has_active_subscription: bool = Field(..., description="Whether the developer has an active paid subscription")
+    latest_subscription_status: Optional[str] = Field(None, description="Most recent subscription status")
+    latest_subscription_reference: Optional[str] = Field(None, description="Most recent Paystack reference")
+    latest_subscription_active_until: Optional[str] = Field(None, description="Subscription expiry timestamp")
+
+
+class DeveloperBillingInitializeRequest(BaseModel):
+    plan_name: Optional[str] = Field(None, description="Optional developer plan name override")
+
+
+class DeveloperBillingInitializeResponse(BaseModel):
+    reference: str = Field(..., description="Paystack reference for this checkout")
+    authorization_url: str = Field(..., description="Paystack payment URL")
+    access_code: Optional[str] = Field(None, description="Paystack access code")
+    amount_kobo: int = Field(..., description="Amount in kobo")
+    plan_name: str = Field(..., description="Developer plan name")
+
+
+class DeveloperApiKeySummary(BaseModel):
+    key_prefix: str = Field(..., description="Visible API key prefix")
+    status: str = Field(..., description="Current API key status")
+    created_at: str = Field(..., description="Creation timestamp")
+    last_used_at: Optional[str] = Field(None, description="Most recent usage timestamp")
+
+
+class DeveloperApiKeysResponse(BaseModel):
+    has_active_subscription: bool = Field(..., description="Whether the user can use developer APIs")
+    keys: list[DeveloperApiKeySummary] = Field(..., description="Issued API keys")
+
+
+class DeveloperApiKeyIssueResponse(BaseModel):
+    api_key: str = Field(..., description="Newly issued API key shown once")
+    message: str = Field(..., description="Issuance message")

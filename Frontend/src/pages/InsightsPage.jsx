@@ -4,14 +4,21 @@ import axios from "axios";
 import Loader from "../components/Loader";
 import EmptyState from "../components/EmptyState";
 import { BarChart3, Briefcase, Scale, TrendingUp } from "lucide-react";
+import { getApiBaseUrl } from "../lib/api";
 
 const InsightsPage = ({ isDark }) => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+  const API_URL = getApiBaseUrl();
 
   useEffect(() => {
+    if (!API_URL) {
+      setError("API endpoint is not configured. Set VITE_API_URL to your backend tunnel URL.");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     axios
       .get(`${API_URL}/stats`)
@@ -24,7 +31,7 @@ const InsightsPage = ({ isDark }) => {
         console.error("API Error:", err);
         setLoading(false);
       });
-  }, []);
+  }, [API_URL]);
 
   if (loading) {
     return (

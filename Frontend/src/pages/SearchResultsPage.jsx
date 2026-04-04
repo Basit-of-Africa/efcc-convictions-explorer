@@ -6,6 +6,7 @@ import SearchBar from "../components/SearchBar";
 import ResultCard from "../components/ResultCard";
 import Loader from "../components/Loader";
 import EmptyState from "../components/EmptyState";
+import { getApiBaseUrl } from "../lib/api";
 
 const SearchResultsPage = ({ isDark }) => {
   const [searchParams] = useSearchParams();
@@ -13,10 +14,16 @@ const SearchResultsPage = ({ isDark }) => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+  const API_URL = getApiBaseUrl();
 
   useEffect(() => {
     if (query) {
+      if (!API_URL) {
+        setError("API endpoint is not configured. Set VITE_API_URL to your backend tunnel URL.");
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       axios
         .get(`${API_URL}/search?name=${query}`)
@@ -30,7 +37,7 @@ const SearchResultsPage = ({ isDark }) => {
           setLoading(false);
         });
     }
-  }, [query]);
+  }, [API_URL, query]);
 
   return (
     <div className={`min-h-screen transition-colors py-12 px-4 ${isDark ? "bg-gradient-to-b from-slate-900 to-gray-900" : "bg-white"}`}>

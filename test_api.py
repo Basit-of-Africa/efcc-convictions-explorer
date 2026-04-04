@@ -27,6 +27,25 @@ server_process = subprocess.Popen(
 # Give the server time to start
 print("Waiting for server to initialize...")
 time.sleep(8)  # Increased wait time to allow data loading
+print("Waiting for server to initialize (max 10s)...")
+start_wait = time.time()
+is_up = False
+while time.time() - start_wait < 10:
+    if server_process.poll() is not None:
+        print("❌ Server process exited prematurely. Check logs above for errors.")
+        sys.exit(1)
+    try:
+        # Quick check if the health endpoint is responsive
+        requests.get("http://localhost:8000/", timeout=1)
+        is_up = True
+        break
+    except requests.exceptions.RequestException:
+        time.sleep(1)
+
+if not is_up:
+    print("❌ Server timed out while starting. Ensure no other process is on port 8000.")
+    server_process.terminate()
+    sys.exit(1)
 
 # Check server output for any errors
 import threading
