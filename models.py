@@ -114,12 +114,14 @@ class ScreeningRequest(BaseModel):
     full_name: str = Field(..., min_length=2, description="Person name to screen")
     aliases: list[str] = Field(default_factory=list, description="Optional aliases for matching")
     location: Optional[str] = Field(None, description="Optional location context")
+    reference: Optional[str] = Field(None, description="Caller-provided case or customer reference")
     limit: int = Field(5, ge=1, le=20, description="Maximum matches to return")
 
 
 class ScreeningMatchRecord(BaseModel):
     match_type: str = Field(..., description="Match classification such as exact or possible")
     confidence: float = Field(..., description="Confidence score between 0 and 1")
+    reason: str = Field(..., description="Human-readable explanation for the match")
     record: ConvictionRecord = Field(..., description="Matched conviction record")
 
 
@@ -133,16 +135,24 @@ class ScreeningQuery(BaseModel):
     full_name: str = Field(..., description="Normalized query name")
     aliases: list[str] = Field(default_factory=list, description="Normalized aliases")
     location: Optional[str] = Field(None, description="Normalized location")
+    reference: Optional[str] = Field(None, description="Caller-provided case or customer reference")
+
+
+class ScreeningAudit(BaseModel):
+    created_at: str = Field(..., description="Report creation timestamp")
+    dataset_version: str = Field(..., description="Dataset version used during screening")
+    source: str = Field(..., description="Data source description")
 
 
 class ScreeningReportResponse(BaseModel):
     report_id: str = Field(..., description="Saved screening report identifier")
     status: str = Field(..., description="Screening outcome: clear, review, or match")
     confidence: float = Field(..., description="Highest screening confidence")
+    summary_text: str = Field(..., description="Human-readable screening outcome")
     query: ScreeningQuery = Field(..., description="Normalized search payload")
     summary: ScreeningSummary = Field(..., description="Result counts")
     matches: list[ScreeningMatchRecord] = Field(..., description="Ordered screening matches")
-    created_at: Optional[str] = Field(None, description="Report creation timestamp")
+    audit: ScreeningAudit = Field(..., description="Audit information for the report")
 
 
 class ScreeningReportListItem(BaseModel):
@@ -150,6 +160,7 @@ class ScreeningReportListItem(BaseModel):
     full_name: str = Field(..., description="Original query name")
     status: str = Field(..., description="Screening outcome")
     confidence: float = Field(..., description="Highest screening confidence")
+    summary_text: str = Field(..., description="Human-readable screening outcome")
     total_matches: int = Field(..., description="Total matches found")
     created_at: str = Field(..., description="Report creation timestamp")
 

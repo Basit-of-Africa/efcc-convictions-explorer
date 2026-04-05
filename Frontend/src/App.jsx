@@ -7,6 +7,10 @@ import SearchResultsPage from "./pages/SearchResultsPage";
 import InsightsPage from "./pages/InsightsPage";
 import AboutPage from "./pages/AboutPage";
 import DeveloperPage from "./pages/DeveloperPage";
+import DeveloperLoginPage from "./pages/DeveloperLoginPage";
+import DeveloperSignupPage from "./pages/DeveloperSignupPage";
+import DeveloperAccountPage from "./pages/DeveloperAccountPage";
+import DeveloperReportPage from "./pages/DeveloperReportPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
 import DisclaimerPage from "./pages/DisclaimerPage";
@@ -59,6 +63,10 @@ function App() {
             <Route path="/about" element={<AboutPage isDark={isDark} />} />
             <Route path="/developers" element={<DeveloperPage isDark={isDark} />} />
             <Route path="/docs" element={<DeveloperPage isDark={isDark} />} />
+            <Route path="/developers/login" element={<DeveloperLoginPage isDark={isDark} />} />
+            <Route path="/developers/signup" element={<DeveloperSignupPage isDark={isDark} />} />
+            <Route path="/developers/account" element={<DeveloperAccountPage isDark={isDark} />} />
+            <Route path="/developers/reports/:reportId" element={<DeveloperReportPage isDark={isDark} />} />
             <Route path="/privacy" element={<PrivacyPage isDark={isDark} />} />
             <Route path="/terms" element={<TermsPage isDark={isDark} />} />
             <Route path="/disclaimer" element={<DisclaimerPage isDark={isDark} />} />

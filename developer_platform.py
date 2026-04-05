@@ -81,8 +81,10 @@ class ScreeningReportRecord:
     query_name: str
     query_aliases: list[str]
     query_location: str | None
+    query_reference: str | None
     status: str
     confidence: float
+    summary_text: str
     exact_matches: int
     possible_matches: int
     total_matches: int
@@ -156,8 +158,10 @@ class DeveloperPlatform:
                     query_name TEXT NOT NULL,
                     query_aliases_json TEXT NOT NULL,
                     query_location TEXT,
+                    query_reference TEXT,
                     status TEXT NOT NULL,
                     confidence REAL NOT NULL,
+                    summary_text TEXT NOT NULL DEFAULT '',
                     exact_matches INTEGER NOT NULL,
                     possible_matches INTEGER NOT NULL,
                     total_matches INTEGER NOT NULL,
@@ -166,6 +170,24 @@ class DeveloperPlatform:
                     FOREIGN KEY (user_id) REFERENCES developer_users(id)
                 );
                 """
+            )
+            self._ensure_column(connection, "screening_reports", "query_reference", "TEXT")
+            self._ensure_column(connection, "screening_reports", "summary_text", "TEXT NOT NULL DEFAULT ''")
+
+    def _ensure_column(
+        self,
+        connection: sqlite3.Connection,
+        table_name: str,
+        column_name: str,
+        column_definition: str,
+    ) -> None:
+        columns = {
+            row["name"]
+            for row in connection.execute(f"PRAGMA table_info({table_name})").fetchall()
+        }
+        if column_name not in columns:
+            connection.execute(
+                f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition}"
             )
 
     def create_user(self, email: str, password: str) -> SessionUser:
@@ -502,8 +524,10 @@ class DeveloperPlatform:
         query_name: str,
         query_aliases: list[str],
         query_location: str | None,
+        query_reference: str | None,
         status: str,
         confidence: float,
+        summary_text: str,
         exact_matches: int,
         possible_matches: int,
         total_matches: int,
@@ -515,10 +539,10 @@ class DeveloperPlatform:
                 """
                 INSERT INTO screening_reports (
                     report_id, user_id, query_name, query_aliases_json, query_location,
-                    status, confidence, exact_matches, possible_matches, total_matches,
-                    matches_json, created_at
+                    query_reference, status, confidence, summary_text,
+                    exact_matches, possible_matches, total_matches, matches_json, created_at
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     report_id,
@@ -526,8 +550,10 @@ class DeveloperPlatform:
                     query_name,
                     json.dumps(query_aliases),
                     query_location,
+                    query_reference,
                     status,
                     confidence,
+                    summary_text,
                     exact_matches,
                     possible_matches,
                     total_matches,
@@ -557,16 +583,22 @@ class DeveloperPlatform:
                 "full_name": row["query_name"],
                 "aliases": json.loads(row["query_aliases_json"]),
                 "location": row["query_location"],
+                "reference": row["query_reference"],
             },
             "status": row["status"],
             "confidence": row["confidence"],
+            "summary_text": row["summary_text"],
             "summary": {
                 "exact_matches": row["exact_matches"],
                 "possible_matches": row["possible_matches"],
                 "total_matches": row["total_matches"],
             },
             "matches": json.loads(row["matches_json"]),
-            "created_at": row["created_at"],
+            "audit": {
+                "created_at": row["created_at"],
+                "dataset_version": os.getenv("DATASET_VERSION", now_iso()[:10]),
+                "source": "EFCC public convictions dataset",
+            },
         }
 
     def list_screening_reports(self, user_id: int, limit: int = 20) -> list[ScreeningReportRecord]:
@@ -574,7 +606,8 @@ class DeveloperPlatform:
             rows = connection.execute(
                 """
                 SELECT report_id, user_id, query_name, query_aliases_json, query_location,
-                       status, confidence, exact_matches, possible_matches, total_matches, created_at
+                       query_reference, status, confidence, summary_text,
+                       exact_matches, possible_matches, total_matches, created_at
                 FROM screening_reports
                 WHERE user_id = ?
                 ORDER BY id DESC
@@ -590,8 +623,10 @@ class DeveloperPlatform:
                 query_name=row["query_name"],
                 query_aliases=json.loads(row["query_aliases_json"]),
                 query_location=row["query_location"],
+                query_reference=row["query_reference"],
                 status=row["status"],
                 confidence=row["confidence"],
+                summary_text=row["summary_text"],
                 exact_matches=row["exact_matches"],
                 possible_matches=row["possible_matches"],
                 total_matches=row["total_matches"],

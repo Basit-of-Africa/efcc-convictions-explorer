@@ -208,26 +208,26 @@ def normalize_screening_value(value: str | None) -> str:
     return " ".join((value or "").strip().upper().split())
 
 
-def score_name_match(candidate_name: str, query_name: str) -> tuple[str, float]:
+def score_name_match(candidate_name: str, query_name: str) -> tuple[str, float, str]:
     normalized_candidate = normalize_screening_value(candidate_name)
     normalized_query = normalize_screening_value(query_name)
 
     if not normalized_candidate or not normalized_query:
-        return "weak", 0.0
+        return "weak", 0.0, "Insufficient name data for a meaningful match"
 
     if normalized_candidate == normalized_query:
-        return "exact", 1.0
+        return "exact", 1.0, "Exact normalized full-name match"
 
     if normalized_query in normalized_candidate or normalized_candidate in normalized_query:
-        return "possible", 0.9
+        return "possible", 0.9, "Strong partial name overlap after normalization"
 
     ratio = SequenceMatcher(None, normalized_candidate, normalized_query).ratio()
     if ratio >= 0.85:
-        return "possible", round(ratio, 2)
+        return "possible", round(ratio, 2), "High fuzzy similarity on normalized name"
     if ratio >= 0.7:
-        return "weak", round(ratio, 2)
+        return "weak", round(ratio, 2), "Moderate fuzzy similarity on normalized name"
 
-    return "weak", round(ratio, 2)
+    return "weak", round(ratio, 2), "Low fuzzy similarity on normalized name"
 
 
 def build_screening_report(
@@ -243,12 +243,14 @@ def build_screening_report(
     for record in convictions_data:
         best_match_type = "weak"
         best_confidence = 0.0
+        best_reason = "No meaningful name similarity"
 
         for term in search_terms:
-            match_type, confidence = score_name_match(record.get("name", ""), term)
+            match_type, confidence, reason = score_name_match(record.get("name", ""), term)
             if confidence > best_confidence:
                 best_match_type = match_type
                 best_confidence = confidence
+                best_reason = reason
 
         if best_confidence < 0.7:
             continue
@@ -258,13 +260,17 @@ def build_screening_report(
             normalized_court = normalize_screening_value(record.get("court", ""))
             if normalized_location and normalized_location not in normalized_court:
                 best_confidence = round(max(0.7, best_confidence - 0.08), 2)
+                best_reason = f"{best_reason}; court location did not match the supplied location context"
                 if best_confidence < 0.75 and best_match_type == "possible":
                     best_match_type = "weak"
+            elif normalized_location:
+                best_reason = f"{best_reason}; court location aligned with the supplied location context"
 
         ranked_matches.append(
             {
                 "match_type": best_match_type,
                 "confidence": round(best_confidence, 2),
+                "reason": best_reason,
                 "record": record,
             }
         )
@@ -284,14 +290,18 @@ def build_screening_report(
 
     if exact_matches > 0 or highest_confidence >= 0.95:
         status_value = "match"
+        summary_text = "Strong conviction match found. Escalate this person for compliance review before approval."
     elif ranked_matches:
         status_value = "review"
+        summary_text = "Possible conviction match found. Manual review is recommended before making a decision."
     else:
         status_value = "clear"
+        summary_text = "No meaningful conviction match found in the current FraudCheckr dataset."
 
     return {
         "status": status_value,
         "confidence": round(highest_confidence, 2),
+        "summary_text": summary_text,
         "summary": {
             "exact_matches": exact_matches,
             "possible_matches": possible_matches,
@@ -458,6 +468,7 @@ async def list_developer_reports(user=Depends(get_dashboard_user)):
                 full_name=item.query_name,
                 status=item.status,
                 confidence=item.confidence,
+                summary_text=item.summary_text,
                 total_matches=item.total_matches,
                 created_at=item.created_at,
             )
@@ -481,17 +492,19 @@ async def get_developer_report(report_id: str, user=Depends(get_dashboard_user))
         report_id=report["report_id"],
         status=report["status"],
         confidence=report["confidence"],
+        summary_text=report["summary_text"],
         query=ScreeningQuery(**report["query"]),
         summary=ScreeningSummary(**report["summary"]),
         matches=[
             ScreeningMatchRecord(
                 match_type=item["match_type"],
                 confidence=item["confidence"],
+                reason=item["reason"],
                 record=ConvictionRecord(**item["record"]),
             )
             for item in report["matches"]
         ],
-        created_at=report["created_at"],
+        audit=report["audit"],
     )
 
 
@@ -858,6 +871,7 @@ async def developer_screen_person(
         if normalized_alias
     ]
     normalized_location = normalize_screening_value(payload.location) or None
+    normalized_reference = normalize_screening_value(payload.reference) or payload.reference
 
     report = build_screening_report(
         query_name=normalized_name,
@@ -870,8 +884,10 @@ async def developer_screen_person(
         query_name=normalized_name,
         query_aliases=normalized_aliases,
         query_location=normalized_location,
+        query_reference=normalized_reference,
         status=report["status"],
         confidence=report["confidence"],
+        summary_text=report["summary_text"],
         exact_matches=report["summary"]["exact_matches"],
         possible_matches=report["summary"]["possible_matches"],
         total_matches=report["summary"]["total_matches"],
@@ -886,17 +902,19 @@ async def developer_screen_person(
         report_id=saved_report["report_id"],
         status=saved_report["status"],
         confidence=saved_report["confidence"],
+        summary_text=saved_report["summary_text"],
         query=ScreeningQuery(**saved_report["query"]),
         summary=ScreeningSummary(**saved_report["summary"]),
         matches=[
             ScreeningMatchRecord(
                 match_type=item["match_type"],
                 confidence=item["confidence"],
+                reason=item["reason"],
                 record=ConvictionRecord(**item["record"]),
             )
             for item in saved_report["matches"]
         ],
-        created_at=saved_report["created_at"],
+        audit=saved_report["audit"],
     )
 
 

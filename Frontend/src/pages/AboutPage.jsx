@@ -186,7 +186,7 @@ const AboutPage = ({ isDark }) => {
         <div className={`bg-gradient-to-r from-blue-600/20 to-purple-600/20 border ${isDark ? "border-blue-700/30" : "border-blue-300/30"} p-12 rounded-2xl text-center`}>
           <h2 className={`text-3xl font-bold ${headingClass} mb-4`}>Ready to Explore?</h2>
           <p className={`${textSecondaryClass} mb-8 max-w-2xl mx-auto`}>
-            Start searching EFCC conviction records today. Our database contains over 864 verified cases across 33 Federal Courts.
+            Start searching public conviction records today. Our database contains over 864 verified cases across 33 Federal Courts.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a href="/search?name=" className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">

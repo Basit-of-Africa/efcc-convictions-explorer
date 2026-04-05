@@ -25,12 +25,12 @@ const HomePage = ({ isDark }) => {
             <h1 className={`text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6 leading-tight ${
               isDark ? "text-white" : "text-gray-900"
             }`}>
-              Nigeria's Fraud Conviction <span className={isDark ? "text-blue-400" : "text-blue-600"}>Records</span>
+              Fraud<span className={isDark ? "text-blue-400" : "text-blue-600"}>Checkr</span>
             </h1>
             <p className={`text-lg sm:text-xl leading-relaxed mb-12 max-w-2xl mx-auto ${
               isDark ? "text-gray-400" : "text-gray-600"
             }`}>
-              Access verified fraud conviction records from Nigeria's federal courts. Search, analyze, and stay informed with transparent data.
+              Access verified public fraud-conviction records from Nigeria's federal courts. Search, analyze, and stay informed with transparent data.
             </p>
             
             <div className="mb-16">
@@ -183,7 +183,7 @@ const HomePage = ({ isDark }) => {
             Ready to Access the Data?
           </h2>
           <p className={`text-xl mb-8 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-            Start exploring EFCC conviction records today. Completely free and accessible to everyone.
+            Start exploring public conviction records today. Completely free and accessible to everyone.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/search?name=" className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all transform hover:scale-105">
@@ -207,7 +207,7 @@ const HomePage = ({ isDark }) => {
             {[
               {
                 q: "Is this data publicly available?",
-                a: "Yes, all EFCC conviction records are public information from official court proceedings and the Economic and Financial Crimes Commission website."
+                a: "Yes, all conviction records shown here are public information from official court proceedings and source publications including the Economic and Financial Crimes Commission website."
               },
               {
                 q: "How often is the data updated?",

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Check, Code, Copy, Menu, X } from "lucide-react";
 
 const sections = [
@@ -111,10 +112,30 @@ const DeveloperPage = ({ isDark }) => {
               </h1>
               <p className={`text-lg leading-8 max-w-3xl ${mutedTextClass}`}>
                 FraudCheckr exposes a paid developer API for screening names against
-                EFCC conviction records. The public website remains open for browsing,
+                public conviction records. The public website remains open for browsing,
                 while the developer API is gated behind account creation, Paystack
                 payment, and issued API keys.
               </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link
+                  to="/developers/signup"
+                  className="rounded-xl bg-blue-600 text-white px-5 py-3 font-semibold hover:bg-blue-700"
+                >
+                  Create developer account
+                </Link>
+                <Link
+                  to="/developers/login"
+                  className={`rounded-xl border px-5 py-3 font-semibold ${isDark ? "border-slate-700 text-slate-200" : "border-gray-300 text-gray-800"}`}
+                >
+                  Sign in
+                </Link>
+                <Link
+                  to="/developers/account"
+                  className={`rounded-xl border px-5 py-3 font-semibold ${isDark ? "border-slate-700 text-slate-200" : "border-gray-300 text-gray-800"}`}
+                >
+                  Open account
+                </Link>
+              </div>
             </section>
 
             <section className="grid md:grid-cols-2 gap-6">

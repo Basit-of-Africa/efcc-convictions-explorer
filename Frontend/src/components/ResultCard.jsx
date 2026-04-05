@@ -90,7 +90,7 @@ const ResultCard = ({ result, isDark }) => {
       {/* Footer Badge */}
       <div className={`mt-6 pt-6 border-t flex items-center justify-between ${isDark ? "border-slate-700" : "border-gray-200"}`}>
         <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${isDark ? "bg-blue-500/20 text-blue-300" : "bg-blue-100 text-blue-700"}`}>
-          EFCC Conviction
+          Conviction Record
         </span>
         <span className={`text-xs ${isDark ? "text-gray-500" : "text-gray-600"}`}>
           Case Record
