@@ -89,6 +89,9 @@ const TermsPage = ({ isDark }) => {
             <p className={textSecondaryClass}>
               Further, FraudCheckr does not warrant or make any representations concerning the accuracy, likely results, or reliability of the use of the materials on its website or otherwise relating to such materials or on any sites linked to this site.
             </p>
+            <p className={`${textSecondaryClass} mt-4`}>
+              FraudCheckr provides conviction-screening signals and public-record research tools only. It is not a substitute for legal advice, formal identity verification, sanctions screening, credit reporting, or any regulated decisioning workflow that requires direct source validation.
+            </p>
           </section>
 
           {/* Limitations of Liability */}
@@ -166,7 +169,7 @@ const TermsPage = ({ isDark }) => {
               <div>
                 <h3 className={`font-semibold ${headingClass} mb-2`}>Rate Limits</h3>
                 <p className={textSecondaryClass}>
-                  API calls are subject to rate limits based on your subscription tier. Excessive usage may result in temporary suspension.
+                  API calls are subject to platform rate limits and abuse controls. Excessive usage may result in temporary throttling or suspension.
                 </p>
               </div>
             </div>

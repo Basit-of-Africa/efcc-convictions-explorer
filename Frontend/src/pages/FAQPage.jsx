@@ -87,11 +87,11 @@ const FAQPage = ({ isDark }) => {
       questions: [
         {
           q: "How do I get API access?",
-          a: "Sign up for a paid subscription plan from our Documentation page. We offer Starter (₦500/month), Professional (₦2,500/month), and Enterprise plans. You'll receive an API key to integrate with your application."
+          a: "Create a developer account, complete Paystack checkout, and then rotate your live API key from the developer dashboard. FraudCheckr currently offers a single paid developer plan for screening and conviction-search access."
         },
         {
           q: "What are the rate limits?",
-          a: "Rate limits depend on your subscription: Starter (10 req/sec), Professional (100 req/sec), Enterprise (unlimited). Exceeding limits temporarily blocks requests; no penalties apply."
+          a: "Paid API keys are protected by platform rate limits and abuse controls. If you exceed the current request threshold, FraudCheckr temporarily throttles requests and returns a rate-limit response so your integration can retry safely."
         },
         {
           q: "Can I use the API commercially?",
@@ -133,7 +133,7 @@ const FAQPage = ({ isDark }) => {
         },
         {
           q: "Do you offer refunds?",
-          a: "We offer a 7-day money-back guarantee for new API subscriptions. Other payments are non-refundable unless the service is unavailable."
+          a: "Refunds are reviewed case by case. If you believe you were billed incorrectly or the service was materially unavailable, contact billing support so we can investigate."
         },
         {
           q: "Can I cancel my subscription anytime?",
@@ -141,7 +141,7 @@ const FAQPage = ({ isDark }) => {
         },
         {
           q: "Is there a free trial for API access?",
-          a: "We occasionally offer free trial periods. Check the API pricing page or contact sales@fraudcheckr.com to inquire about current promotions."
+          a: "FraudCheckr does not currently advertise a public API free trial. If you need an evaluation workflow for your team, contact sales support before subscribing."
         }
       ]
     }

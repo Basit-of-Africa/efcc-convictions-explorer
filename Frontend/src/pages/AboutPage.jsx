@@ -19,6 +19,9 @@ const AboutPage = ({ isDark }) => {
           <p className={`text-xl ${textSecondaryClass} max-w-3xl mx-auto`}>
             Empowering transparency and accountability in financial crime prosecution through accessible, verified conviction data
           </p>
+          <p className={`text-base ${textSecondaryClass} max-w-3xl mx-auto mt-4`}>
+            FraudCheckr is a conviction-screening and research platform built from public records. It is not a full identity-verification, sanctions-screening, or consumer-credit reporting service.
+          </p>
         </div>
 
         {/* Mission & Vision */}
@@ -161,6 +164,9 @@ const AboutPage = ({ isDark }) => {
                 <span><strong>Public Records</strong> - All data is obtained from publicly available sources</span>
               </li>
             </ul>
+            <p className={`${textSecondaryClass} mt-6`}>
+              FraudCheckr organizes and normalizes these public records for easier search and screening, but customers should verify critical decisions against official source documents and internal compliance policies.
+            </p>
           </div>
         </div>
 

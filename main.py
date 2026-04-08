@@ -1,16 +1,17 @@
 """
-FastAPI application for EFCC Convictions Explorer.
+FastAPI application for FraudCheckr.
 
-A REST API for searching and analyzing EFCC conviction records.
+A REST API for searching and analyzing fraud conviction records.
 """
 
 import os
 import json
+import logging
 from difflib import SequenceMatcher
 from pathlib import Path
 from contextlib import asynccontextmanager
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Query, Depends, Header, Request, status
+from fastapi import FastAPI, HTTPException, Query, Depends, Header, Request, Response, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -43,6 +44,11 @@ from developer_platform import (
     default_plan_name,
 )
 
+logging.basicConfig(
+    level=os.getenv("LOG_LEVEL", "INFO").upper(),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+logger = logging.getLogger("fraudcheckr.api")
 
 # Global dataset (loaded at startup)
 convictions_data: list[dict] = []
@@ -74,15 +80,14 @@ def load_conviction_data():
             df = pd.read_csv(csv_file, engine='python')
             raw_data = df.to_dict(orient="records")
             convictions_data = process_efcc_data(raw_data)
-            print(f"[LOAD] SUCCESS: Loaded {len(convictions_data)} conviction records from {csv_file}")
+            logger.info("Loaded %s conviction records from %s", len(convictions_data), csv_file)
         except Exception as e:
-            print(f"[LOAD] ERROR: {e}")
+            logger.exception("Failed to load conviction data: %s", e)
             convictions_data = []
     else:
-        print(f"[LOAD] WARNING: CSV file not found")
-        print("  Checked:")
+        logger.warning("Conviction CSV file not found")
         for path in possible_paths:
-            print(f"    - {path.absolute()}")
+            logger.warning("Checked path: %s", path.absolute())
         convictions_data = []
 
 
@@ -99,8 +104,8 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI app with lifespan
 app = FastAPI(
-    title="EFCC Convictions Explorer",
-    description="REST API for searching and analyzing EFCC conviction records",
+    title="FraudCheckr API",
+    description="REST API for searching and analyzing public fraud conviction records",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -144,6 +149,7 @@ app.add_middleware(
 
 def get_dashboard_user(authorization: str = Header(default="")):
     if not authorization.startswith("Bearer "):
+        logger.warning("Developer dashboard request missing session token")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing developer session token",
@@ -152,6 +158,7 @@ def get_dashboard_user(authorization: str = Header(default="")):
     token = authorization.replace("Bearer ", "", 1).strip()
     user = developer_platform.get_user_for_session(token)
     if user is None:
+        logger.warning("Developer dashboard request used invalid or expired session token")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired developer session token",
@@ -161,6 +168,8 @@ def get_dashboard_user(authorization: str = Header(default="")):
 
 
 def get_paid_api_user(
+    request: Request,
+    response: Response,
     x_api_key: str = Header(default="", alias="X-API-Key"),
     authorization: str = Header(default=""),
 ):
@@ -170,22 +179,51 @@ def get_paid_api_user(
         raw_key = authorization.replace("Bearer ", "", 1).strip()
 
     if not raw_key:
+        logger.warning("Paid API request missing API key for %s", request.url.path)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing API key",
         )
 
-    user = developer_platform.authenticate_api_key(raw_key)
-    if user is None:
+    auth_result = developer_platform.authenticate_api_key(raw_key)
+    if auth_result is None:
+        logger.warning("Paid API request used invalid API key for %s", request.url.path)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid API key",
         )
 
+    user = auth_result.user
     if not developer_platform.has_active_subscription(user.id):
+        logger.warning(
+            "Paid API request blocked for inactive subscription user_id=%s path=%s",
+            user.id,
+            request.url.path,
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Developer subscription is inactive",
+        )
+
+    rate_limit = developer_platform.check_rate_limit(
+        api_key_id=auth_result.api_key_id,
+        limit=int(os.getenv("DEVELOPER_API_RATE_LIMIT_PER_MINUTE", "60")),
+    )
+    response.headers["X-RateLimit-Limit"] = str(rate_limit["limit"])
+    response.headers["X-RateLimit-Remaining"] = str(rate_limit["remaining"])
+    response.headers["X-RateLimit-Reset"] = rate_limit["reset_at"]
+
+    if not rate_limit["allowed"]:
+        response.headers["Retry-After"] = str(rate_limit["retry_after"])
+        logger.warning(
+            "Paid API rate limit exceeded user_id=%s key_prefix=%s path=%s",
+            user.id,
+            auth_result.key_prefix,
+            request.url.path,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Rate limit exceeded for this API key",
         )
 
     return user
@@ -329,7 +367,7 @@ async def health_check():
     """
     return HealthResponse(
         status="operational",
-        message=f"EFCC Convictions Explorer is running. Loaded {len(convictions_data)} records."
+        message=f"FraudCheckr is running. Loaded {len(convictions_data)} records."
     )
 
 
@@ -343,9 +381,11 @@ async def developer_signup(payload: DeveloperSignupRequest):
     try:
         user = developer_platform.create_user(payload.email, payload.password)
     except Exception as exc:
+        logger.warning("Developer signup rejected for email=%s", payload.email.strip().lower())
         raise HTTPException(status_code=400, detail="Developer account already exists") from exc
 
     token = developer_platform.create_session(user.id)
+    logger.info("Developer signup succeeded for user_id=%s email=%s", user.id, user.email)
     return DeveloperAuthResponse(access_token=token, email=user.email)
 
 
@@ -358,9 +398,11 @@ async def developer_signup(payload: DeveloperSignupRequest):
 async def developer_login(payload: DeveloperLoginRequest):
     user = developer_platform.authenticate_user(payload.email, payload.password)
     if user is None:
+        logger.warning("Developer login failed for email=%s", payload.email.strip().lower())
         raise HTTPException(status_code=401, detail="Invalid developer credentials")
 
     token = developer_platform.create_session(user.id)
+    logger.info("Developer login succeeded for user_id=%s email=%s", user.id, user.email)
     return DeveloperAuthResponse(access_token=token, email=user.email)
 
 
@@ -398,10 +440,18 @@ async def initialize_developer_billing(
             plan_name=payload.plan_name or default_plan_name(),
         )
     except RuntimeError as exc:
+        logger.exception("Paystack initialization failed for user_id=%s", user.id)
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except ValueError as exc:
+        logger.warning("Developer billing initialization rejected for user_id=%s: %s", user.id, exc)
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
+    logger.info(
+        "Paystack checkout initialized for user_id=%s reference=%s amount_kobo=%s",
+        user.id,
+        payment["reference"],
+        payment["amount_kobo"],
+    )
     return DeveloperBillingInitializeResponse(**payment)
 
 
@@ -413,6 +463,7 @@ async def initialize_developer_billing(
 async def developer_billing_webhook(request: Request, x_paystack_signature: str = Header(default="")):
     payload = await request.body()
     if not developer_platform.verify_webhook_signature(payload, x_paystack_signature):
+        logger.warning("Rejected Paystack webhook with invalid signature")
         raise HTTPException(status_code=401, detail="Invalid Paystack signature")
 
     try:
@@ -421,13 +472,16 @@ async def developer_billing_webhook(request: Request, x_paystack_signature: str 
         raise HTTPException(status_code=400, detail="Invalid webhook payload") from exc
 
     if event.get("event") != "charge.success":
+        logger.info("Ignored Paystack webhook event=%s", event.get("event"))
         return {"status": "ignored"}
 
     try:
         result = developer_platform.apply_successful_payment(event)
     except ValueError as exc:
+        logger.warning("Paystack webhook processing failed: %s", exc)
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
+    logger.info("Paystack payment activated reference=%s", result["reference"])
     return {"status": "processed", "reference": result["reference"]}
 
 
@@ -516,12 +570,14 @@ async def get_developer_report(report_id: str, user=Depends(get_dashboard_user))
 )
 async def rotate_developer_api_key(user=Depends(get_dashboard_user)):
     if not developer_platform.has_active_subscription(user.id):
+        logger.warning("API key rotation blocked for inactive subscription user_id=%s", user.id)
         raise HTTPException(
             status_code=403,
             detail="Complete Paystack payment before generating API keys",
         )
 
     api_key = developer_platform.create_or_rotate_api_key(user.id)
+    logger.info("API key rotated for user_id=%s", user.id)
     return DeveloperApiKeyIssueResponse(
         api_key=api_key,
         message="Store this API key now. FraudCheckr will not show it again.",
@@ -896,8 +952,16 @@ async def developer_screen_person(
 
     saved_report = developer_platform.get_screening_report(user.id, report_id)
     if saved_report is None:
+        logger.error("Saved screening report could not be reloaded report_id=%s user_id=%s", report_id, user.id)
         raise HTTPException(status_code=500, detail="Unable to load saved screening report")
 
+    logger.info(
+        "Screening report created report_id=%s user_id=%s status=%s confidence=%s",
+        report_id,
+        user.id,
+        saved_report["status"],
+        saved_report["confidence"],
+    )
     return ScreeningReportResponse(
         report_id=saved_report["report_id"],
         status=saved_report["status"],
@@ -925,9 +989,19 @@ async def developer_screen_person(
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
     """Custom HTTP exception handler."""
+    logger.warning("HTTPException path=%s status=%s detail=%s", request.url.path, exc.status_code, exc.detail)
     return JSONResponse(
         status_code=exc.status_code,
         content={"error": exc.detail}
+    )
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logger.exception("Unhandled exception on path=%s", request.url.path)
+    return JSONResponse(
+        status_code=500,
+        content={"error": "Internal server error"},
     )
 
 

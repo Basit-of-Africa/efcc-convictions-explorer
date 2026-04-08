@@ -75,6 +75,13 @@ class ApiKeyRecord:
 
 
 @dataclass
+class AuthenticatedApiKey:
+    api_key_id: int
+    key_prefix: str
+    user: SessionUser
+
+
+@dataclass
 class ScreeningReportRecord:
     report_id: str
     user_id: int
@@ -168,6 +175,17 @@ class DeveloperPlatform:
                     matches_json TEXT NOT NULL,
                     created_at TEXT NOT NULL,
                     FOREIGN KEY (user_id) REFERENCES developer_users(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS developer_api_usage_windows (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    api_key_id INTEGER NOT NULL,
+                    window_start TEXT NOT NULL,
+                    request_count INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    UNIQUE(api_key_id, window_start),
+                    FOREIGN KEY (api_key_id) REFERENCES developer_api_keys(id)
                 );
                 """
             )
@@ -476,11 +494,11 @@ class DeveloperPlatform:
 
         return dict(row) if row else None
 
-    def authenticate_api_key(self, raw_key: str) -> SessionUser | None:
+    def authenticate_api_key(self, raw_key: str) -> AuthenticatedApiKey | None:
         with self._connect() as connection:
             rows = connection.execute(
                 """
-                SELECT k.id, k.key_hash, k.key_salt, u.id AS user_id, u.email, u.created_at
+                SELECT k.id, k.key_prefix, k.key_hash, k.key_salt, u.id AS user_id, u.email, u.created_at
                 FROM developer_api_keys k
                 JOIN developer_users u ON u.id = k.user_id
                 WHERE k.status = 'active'
@@ -493,13 +511,80 @@ class DeveloperPlatform:
                         "UPDATE developer_api_keys SET last_used_at = ? WHERE id = ?",
                         (now_iso(), row["id"]),
                     )
-                    return SessionUser(
-                        id=row["user_id"],
-                        email=row["email"],
-                        created_at=row["created_at"],
+                    return AuthenticatedApiKey(
+                        api_key_id=row["id"],
+                        key_prefix=row["key_prefix"],
+                        user=SessionUser(
+                            id=row["user_id"],
+                            email=row["email"],
+                            created_at=row["created_at"],
+                        ),
                     )
 
         return None
+
+    def check_rate_limit(
+        self,
+        *,
+        api_key_id: int,
+        limit: int,
+        window_seconds: int = 60,
+    ) -> dict[str, Any]:
+        now = datetime.now(UTC)
+        window_start = now.replace(second=0, microsecond=0)
+        window_key = window_start.isoformat()
+        reset_at = window_start + timedelta(seconds=window_seconds)
+        created_at = now_iso()
+
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO developer_api_usage_windows (
+                    api_key_id, window_start, request_count, created_at, updated_at
+                )
+                VALUES (?, ?, 0, ?, ?)
+                ON CONFLICT(api_key_id, window_start) DO NOTHING
+                """,
+                (api_key_id, window_key, created_at, created_at),
+            )
+
+            row = connection.execute(
+                """
+                SELECT id, request_count
+                FROM developer_api_usage_windows
+                WHERE api_key_id = ? AND window_start = ?
+                """,
+                (api_key_id, window_key),
+            ).fetchone()
+
+            request_count = int(row["request_count"]) if row else 0
+            if request_count >= limit:
+                retry_after = max(1, int((reset_at - now).total_seconds()))
+                return {
+                    "allowed": False,
+                    "limit": limit,
+                    "remaining": 0,
+                    "retry_after": retry_after,
+                    "reset_at": reset_at.isoformat(),
+                }
+
+            updated_count = request_count + 1
+            connection.execute(
+                """
+                UPDATE developer_api_usage_windows
+                SET request_count = ?, updated_at = ?
+                WHERE api_key_id = ? AND window_start = ?
+                """,
+                (updated_count, created_at, api_key_id, window_key),
+            )
+
+        return {
+            "allowed": True,
+            "limit": limit,
+            "remaining": max(0, limit - updated_count),
+            "retry_after": 0,
+            "reset_at": reset_at.isoformat(),
+        }
 
     def get_user_by_id(self, user_id: int) -> SessionUser | None:
         with self._connect() as connection:

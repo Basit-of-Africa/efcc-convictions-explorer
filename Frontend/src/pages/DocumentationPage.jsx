@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { Code, Lock, CreditCard, BookOpen, Zap, FileText } from "lucide-react";
+import { Code, CreditCard, FileText, Zap } from "lucide-react";
 
 const DocumentationPage = ({ isDark }) => {
   const [activeTab, setActiveTab] = useState("getting-started");
 
   const bgClass = isDark ? "bg-gradient-to-b from-slate-900 to-gray-900" : "bg-white";
   const cardBgClass = isDark ? "from-slate-800 to-slate-900 border-slate-700" : "from-gray-50 to-white border-gray-200";
-  const textColorClass = isDark ? "text-white" : "text-gray-900";
   const textSecondaryClass = isDark ? "text-gray-400" : "text-gray-600";
   const headingClass = isDark ? "text-white" : "text-gray-900";
   const codeBgClass = isDark ? "bg-gray-950" : "bg-gray-100";
@@ -15,7 +14,7 @@ const DocumentationPage = ({ isDark }) => {
     { id: "getting-started", label: "Getting Started", icon: Zap },
     { id: "api", label: "API Reference", icon: Code },
     { id: "pricing", label: "API Pricing", icon: CreditCard },
-    { id: "examples", label: "Code Examples", icon: FileText }
+    { id: "examples", label: "Code Examples", icon: FileText },
   ];
 
   const renderContent = () => {
@@ -30,45 +29,45 @@ const DocumentationPage = ({ isDark }) => {
                   <span className="text-blue-500 font-bold">1.</span>
                   <div>
                     <strong className={headingClass}>Visit FraudCheckr</strong>
-                    <p>Navigate to https://fraudcheckr.com and open the search page</p>
+                    <p>Open the public search experience to explore conviction records and analytics.</p>
                   </div>
                 </li>
                 <li className="flex gap-4">
                   <span className="text-blue-500 font-bold">2.</span>
                   <div>
-                    <strong className={headingClass}>Search by Name</strong>
-                    <p>Enter a defendant's name to find related conviction records</p>
+                    <strong className={headingClass}>Create a developer account</strong>
+                    <p>Use the Developers section to sign up, manage billing, and access your dashboard.</p>
                   </div>
                 </li>
                 <li className="flex gap-4">
                   <span className="text-blue-500 font-bold">3.</span>
                   <div>
-                    <strong className={headingClass}>View Details</strong>
-                    <p>Click on any record to see full details including offense, court, and sentencing</p>
+                    <strong className={headingClass}>Complete Paystack checkout</strong>
+                    <p>Activate the paid developer plan before attempting to generate or rotate live API keys.</p>
                   </div>
                 </li>
                 <li className="flex gap-4">
                   <span className="text-blue-500 font-bold">4.</span>
                   <div>
-                    <strong className={headingClass}>Explore Analytics</strong>
-                    <p>Visit the Insights page to view statistics and trends</p>
+                    <strong className={headingClass}>Rotate a live API key</strong>
+                    <p>Store the revealed key securely and use it only from your backend or trusted services.</p>
                   </div>
                 </li>
               </ol>
             </div>
 
             <div>
-              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>Database Overview</h3>
+              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>Dataset Overview</h3>
               <div className={`bg-gradient-to-br ${cardBgClass} p-6 rounded-xl border`}>
                 <p className={textSecondaryClass}>
-                  FraudCheckr provides access to verified fraud conviction records from Nigeria's federal courts including:
+                  FraudCheckr organizes verified public fraud-conviction records from Nigeria&apos;s federal courts into a screening and research workflow.
                 </p>
                 <ul className={`mt-4 space-y-2 ${textSecondaryClass}`}>
-                  <li>✓ 864 total conviction records</li>
+                  <li>✓ 7,788 total conviction records</li>
                   <li>✓ 33 Federal High Courts covered</li>
                   <li>✓ 192 distinct offense types</li>
-                  <li>✓ Complete sentencing information</li>
-                  <li>✓ Fine and restitution details</li>
+                  <li>✓ Structured sentencing, fine, and restitution fields</li>
+                  <li>✓ Developer screening reports for KYC and compliance review</li>
                 </ul>
               </div>
             </div>
@@ -79,36 +78,36 @@ const DocumentationPage = ({ isDark }) => {
         return (
           <div className="space-y-8">
             <div>
-              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>REST API Endpoints</h3>
+              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>Developer API Endpoints</h3>
               <div className="space-y-6">
                 {[
                   {
-                    method: "GET",
-                    endpoint: "/search?name={name}",
-                    description: "Search for convictions by defendant name"
+                    method: "POST",
+                    endpoint: "/developer/v1/screen",
+                    description: "Create a screening report for a person name and optional aliases or location context",
                   },
                   {
                     method: "GET",
-                    endpoint: "/offense?type={type}",
-                    description: "Filter convictions by offense type"
+                    endpoint: "/developer/v1/search?name={name}",
+                    description: "Search convictions by defendant name",
                   },
                   {
                     method: "GET",
-                    endpoint: "/court?name={name}",
-                    description: "Find convictions by court"
+                    endpoint: "/developer/v1/offense?type={type}",
+                    description: "Filter convictions by offense type",
                   },
                   {
                     method: "GET",
-                    endpoint: "/stats",
-                    description: "Get conviction statistics and aggregates"
+                    endpoint: "/developer/v1/court?name={name}",
+                    description: "Find convictions by court",
                   },
                   {
                     method: "GET",
-                    endpoint: "/convictions?limit=10&offset=0",
-                    description: "Retrieve all convictions with pagination"
-                  }
-                ].map((endpoint, idx) => (
-                  <div key={idx} className={`bg-gradient-to-br ${cardBgClass} p-6 rounded-xl border`}>
+                    endpoint: "/developer/v1/stats",
+                    description: "Get aggregate conviction statistics",
+                  },
+                ].map((endpoint) => (
+                  <div key={endpoint.endpoint} className={`bg-gradient-to-br ${cardBgClass} p-6 rounded-xl border`}>
                     <div className="flex items-start gap-4">
                       <span className={`px-3 py-1 rounded text-white font-bold text-sm ${endpoint.method === "GET" ? "bg-blue-600" : "bg-green-600"}`}>
                         {endpoint.method}
@@ -126,25 +125,14 @@ const DocumentationPage = ({ isDark }) => {
             </div>
 
             <div>
-              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>Response Format</h3>
+              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>Authentication</h3>
               <div className={`bg-gradient-to-br ${cardBgClass} p-6 rounded-xl border`}>
+                <p className={`${textSecondaryClass} mb-4`}>
+                  FraudCheckr uses dashboard session tokens for account actions and live API keys for paid data requests.
+                </p>
                 <pre className={`${codeBgClass} p-4 rounded overflow-x-auto text-sm`}>
-{`{
-  "total": 10,
-  "limit": 20,
-  "offset": 0,
-  "data": [
-    {
-      "name": "JOHN DOE",
-      "offense": "FRAUD",
-      "prison_term": "5 YEARS",
-      "prison_term_months": 60,
-      "fine": "5000000",
-      "restitution": "1000000",
-      "court": "FEDERAL HIGH COURT"
-    }
-  ]
-}`}
+{`Authorization: Bearer <dashboard_session_token>
+X-API-Key: fchk_live_your_api_key`}
                 </pre>
               </div>
             </div>
@@ -155,93 +143,51 @@ const DocumentationPage = ({ isDark }) => {
         return (
           <div className="space-y-8">
             <div>
-              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>Web Search - FREE</h3>
-              <div className={`bg-gradient-to-br ${cardBgClass} p-6 rounded-xl border border-green-500/50`}>
+              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>Web Search - Free</h3>
+              <div className={`bg-gradient-to-br ${cardBgClass} p-6 rounded-xl border border-green-500/40`}>
                 <p className={textSecondaryClass}>
-                  Use FraudCheckr web interface to search and view conviction records completely free. Perfect for:
+                  The public web experience remains free for search, browsing, and analytics.
                 </p>
                 <ul className={`mt-4 space-y-2 ${textSecondaryClass}`}>
                   <li>✓ Quick record lookups</li>
-                  <li>✓ Background verification</li>
-                  <li>✓ Viewing conviction details</li>
-                  <li>✓ Accessing analytics</li>
+                  <li>✓ Case exploration and analytics</li>
+                  <li>✓ Research-friendly browsing across public records</li>
                 </ul>
               </div>
             </div>
 
             <div>
-              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>API Access - PAID</h3>
-              <p className={textSecondaryClass + " mb-6"}>
-                Programmatic access to FraudCheckr data is available through our REST API, priced per request or monthly subscription.
+              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>Developer API - Paid</h3>
+              <p className={`${textSecondaryClass} mb-6`}>
+                FraudCheckr currently offers a single paid developer plan managed through Paystack and the developer dashboard.
               </p>
-
-              <div className="grid md:grid-cols-3 gap-6">
-                {[
-                  {
-                    name: "Starter",
-                    price: "₦500",
-                    period: "/month",
-                    requests: "1,000 API requests",
-                    features: ["REST API access", "Search & Filter endpoints", "Email support"]
-                  },
-                  {
-                    name: "Professional",
-                    price: "₦2,500",
-                    period: "/month",
-                    requests: "50,000 API requests",
-                    features: ["All Starter features", "Bulk export capability", "Priority support", "Rate limit: 100 req/min"],
-                    highlight: true
-                  },
-                  {
-                    name: "Enterprise",
-                    price: "Custom",
-                    period: "",
-                    requests: "Unlimited requests",
-                    features: ["All Professional features", "Dedicated support", "Custom integrations", "SLA guarantee"],
-                  }
-                ].map((plan, idx) => (
-                  <div key={idx} className={`bg-gradient-to-br ${cardBgClass} p-6 rounded-xl border ${plan.highlight ? "border-blue-500 shadow-lg shadow-blue-500/20" : ""}`}>
-                    <h4 className={`text-xl font-bold ${headingClass} mb-2`}>{plan.name}</h4>
-                    <div className="mb-4">
-                      <span className={`text-3xl font-bold ${headingClass}`}>{plan.price}</span>
-                      <span className={textSecondaryClass}>{plan.period}</span>
-                    </div>
-                    <p className={`text-sm ${textSecondaryClass} mb-4`}>{plan.requests}</p>
-                    <ul className={`space-y-2 ${textSecondaryClass} mb-6`}>
-                      {plan.features.map((feature, i) => (
-                        <li key={i}>✓ {feature}</li>
-                      ))}
-                    </ul>
-                    <button className={`w-full py-2 rounded font-semibold transition ${plan.highlight ? "bg-blue-600 text-white hover:bg-blue-700" : isDark ? "bg-slate-700 text-white hover:bg-slate-600" : "bg-gray-200 text-gray-900 hover:bg-gray-300"}`}>
-                      {plan.price === "Custom" ? "Contact Sales" : "Get Started"}
-                    </button>
-                  </div>
-                ))}
+              <div className={`bg-gradient-to-br ${cardBgClass} p-6 rounded-xl border border-blue-500/40`}>
+                <h4 className={`text-xl font-bold ${headingClass} mb-2`}>Developer API Monthly</h4>
+                <p className={`text-sm ${textSecondaryClass} mb-4`}>
+                  Access is enabled after Paystack payment and includes screening reports, search endpoints, report history, and API-key rotation.
+                </p>
+                <ul className={`space-y-2 ${textSecondaryClass} mb-6`}>
+                  <li>✓ Screening reports for onboarding and compliance review</li>
+                  <li>✓ Account-managed API key rotation</li>
+                  <li>✓ FraudCheckr dashboard access for billing and saved reports</li>
+                  <li>✓ Built-in rate limiting and abuse protection</li>
+                </ul>
+                <button className="w-full py-2 rounded font-semibold transition bg-blue-600 text-white hover:bg-blue-700">
+                  Open Developer Dashboard
+                </button>
               </div>
             </div>
 
             <div>
-              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>Billing & Payment</h3>
+              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>Billing Notes</h3>
               <div className={`bg-gradient-to-br ${cardBgClass} p-6 rounded-xl border`}>
                 <ul className={`space-y-3 ${textSecondaryClass}`}>
-                  <li><strong className={headingClass}>Payment Methods:</strong> Bank transfer, Card (Visa/Mastercard)</li>
-                  <li><strong className={headingClass}>Billing Cycle:</strong> Monthly, renewable automatically</li>
-                  <li><strong className={headingClass}>Cancellation:</strong> Cancel anytime, no lock-in contract</li>
-                  <li><strong className={headingClass}>Refunds:</strong> 7-day money-back guarantee for new customers</li>
-                  <li><strong className={headingClass}>Invoice:</strong> Automatic invoice generation upon payment</li>
+                  <li><strong className={headingClass}>Payment Methods:</strong> Paystack-supported card and bank payment methods</li>
+                  <li><strong className={headingClass}>Billing Cycle:</strong> Monthly access window after successful payment</li>
+                  <li><strong className={headingClass}>Cancellation:</strong> You can stop renewing at any time</li>
+                  <li><strong className={headingClass}>Refunds:</strong> Reviewed case by case for incorrect billing or material service failure</li>
+                  <li><strong className={headingClass}>Usage Controls:</strong> Paid API keys are subject to platform rate limiting and abuse controls</li>
                 </ul>
-              </div>
-            </div>
-
-            <div>
-              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>Get API Key</h3>
-              <div className={`bg-gradient-to-br from-blue-600/20 to-purple-600/20 border ${isDark ? "border-blue-700/30" : "border-blue-300/30"} p-6 rounded-xl`}>
-                <p className={textSecondaryClass + " mb-4"}>
-                  Ready to integrate FraudCheckr API into your application?
-                </p>
-                <button className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
-                  Subscribe to API
-                </button>
               </div>
             </div>
           </div>
@@ -256,42 +202,36 @@ const DocumentationPage = ({ isDark }) => {
                 <pre className="text-sm text-green-400">
 {`import requests
 
-# Search for convictions
 response = requests.get(
-  "https://api.fraudcheckr.com/search",
+  "https://your-backend-origin/developer/v1/search",
   params={"name": "JOHN DOE"},
-  headers={"Authorization": "Bearer YOUR_API_KEY"}
+  headers={"X-API-Key": "fchk_live_your_api_key"}
 )
 
 records = response.json()
-for record in records['data']:
+for record in records["data"]:
   print(f"{record['name']} - {record['offense']}")`}
                 </pre>
               </div>
             </div>
 
             <div>
-              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>JavaScript/Node.js Example</h3>
+              <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>JavaScript Example</h3>
               <div className={codeBgClass + " p-4 rounded-lg overflow-x-auto"}>
                 <pre className="text-sm text-green-400">
-{`const axios = require('axios');
+{`const axios = require("axios");
 
 async function searchConvictions(name) {
   const response = await axios.get(
-    'https://api.fraudcheckr.com/search',
+    "https://your-backend-origin/developer/v1/search",
     {
       params: { name },
-      headers: { 
-        Authorization: 'Bearer YOUR_API_KEY' 
-      }
+      headers: { "X-API-Key": "fchk_live_your_api_key" }
     }
   );
-  
-  return response.data.data;
-}
 
-searchConvictions('JOHN DOE')
-  .then(records => console.log(records));`}
+  return response.data.data;
+}`}
                 </pre>
               </div>
             </div>
@@ -300,8 +240,8 @@ searchConvictions('JOHN DOE')
               <h3 className={`text-2xl font-bold ${headingClass} mb-4`}>cURL Example</h3>
               <div className={codeBgClass + " p-4 rounded-lg overflow-x-auto"}>
                 <pre className="text-sm text-green-400">
-{`curl -X GET "https://api.fraudcheckr.com/search?name=JOHN DOE" \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
+{`curl -X GET "https://your-backend-origin/developer/v1/search?name=JOHN%20DOE" \\
+  -H "X-API-Key: fchk_live_your_api_key" \\
   -H "Content-Type: application/json"`}
                 </pre>
               </div>
@@ -312,23 +252,23 @@ searchConvictions('JOHN DOE')
               <ol className={`space-y-3 ${textSecondaryClass}`}>
                 <li className="flex gap-3">
                   <span className="text-blue-500 font-bold">1.</span>
-                  <span>Subscribe to an API plan (Starter, Professional, or Enterprise)</span>
+                  <span>Create a FraudCheckr developer account</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="text-blue-500 font-bold">2.</span>
-                  <span>Complete payment and email verification</span>
+                  <span>Complete Paystack checkout from the developer dashboard</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="text-blue-500 font-bold">3.</span>
-                  <span>Access your dashboard at https://dashboard.fraudcheckr.com</span>
+                  <span>Open your account dashboard at <code className={headingClass}>/developers/account</code></span>
                 </li>
                 <li className="flex gap-3">
                   <span className="text-blue-500 font-bold">4.</span>
-                  <span>Generate a new API key from Settings → API Keys</span>
+                  <span>Rotate a new live API key from the API Keys section</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="text-blue-500 font-bold">5.</span>
-                  <span>Include the key in the Authorization header of your API requests</span>
+                  <span>Include the key in the <code className={headingClass}>X-API-Key</code> header of your paid API requests</span>
                 </li>
               </ol>
             </div>
@@ -343,7 +283,6 @@ searchConvictions('JOHN DOE')
   return (
     <div className={`min-h-screen ${bgClass} py-20 px-4`}>
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-16">
           <h1 className={`text-5xl md:text-6xl font-bold ${headingClass} mb-4`}>Documentation</h1>
           <p className={`text-xl ${textSecondaryClass}`}>
@@ -351,7 +290,6 @@ searchConvictions('JOHN DOE')
           </p>
         </div>
 
-        {/* Tab Navigation */}
         <div className={`flex flex-wrap gap-4 mb-8 p-4 rounded-lg ${isDark ? "bg-slate-800" : "bg-gray-100"}`}>
           {sections.map((section) => {
             const Icon = section.icon;
@@ -374,16 +312,14 @@ searchConvictions('JOHN DOE')
           })}
         </div>
 
-        {/* Content */}
         <div className={`bg-gradient-to-br ${cardBgClass} p-8 rounded-2xl border`}>
           {renderContent()}
         </div>
 
-        {/* Support Section */}
         <div className={`mt-20 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border ${isDark ? "border-blue-700/30" : "border-blue-300/30"} p-12 rounded-2xl text-center`}>
           <h2 className={`text-3xl font-bold ${headingClass} mb-4`}>Need Help?</h2>
           <p className={`${textSecondaryClass} mb-8 max-w-2xl mx-auto`}>
-            Check our FAQ, email support@fraudcheckr.com, or visit our community forum for assistance
+            Check our FAQ, email support@fraudcheckr.com, or reach out to the team for onboarding support.
           </p>
           <button className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
             Contact Support
