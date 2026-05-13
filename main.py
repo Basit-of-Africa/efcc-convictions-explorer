@@ -121,6 +121,16 @@ allowed_origins = [
     "http://localhost:5173",  # Vite dev server
 ]
 
+
+def normalize_origin(origin: str) -> str:
+    origin = origin.strip().rstrip("/")
+    if not origin:
+        return ""
+    if origin.startswith(("http://", "https://")):
+        return origin
+    return f"https://{origin}"
+
+
 # Allow temporary tunnel frontends during development.
 # This keeps local development simple while still using an explicit list for
 # common localhost origins.
@@ -130,12 +140,20 @@ allowed_origin_regex = r"https://.*\.(trycloudflare\.com|opentunnel\.dev)$"
 if os.getenv("ENVIRONMENT") == "production":
     vercel_url = os.getenv("VERCEL_URL")
     if vercel_url:
-        allowed_origins.append(f"https://{vercel_url}")
+        allowed_origins.append(normalize_origin(vercel_url))
     
     # Add custom production domain
     custom_domain = os.getenv("CUSTOM_DOMAIN")
     if custom_domain:
-        allowed_origins.append(f"https://{custom_domain}")
+        allowed_origins.append(normalize_origin(custom_domain))
+
+    frontend_origins = os.getenv("FRONTEND_ORIGINS", "")
+    for origin in frontend_origins.split(","):
+        normalized_origin = normalize_origin(origin)
+        if normalized_origin:
+            allowed_origins.append(normalized_origin)
+
+allowed_origins = list(dict.fromkeys(allowed_origins))
 
 app.add_middleware(
     CORSMiddleware,
