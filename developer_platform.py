@@ -188,6 +188,27 @@ class DeveloperPlatform:
                     UNIQUE(api_key_id, window_start),
                     FOREIGN KEY (api_key_id) REFERENCES developer_api_keys(id)
                 );
+
+                CREATE TABLE IF NOT EXISTS request_rate_limits (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    rate_limit_key TEXT NOT NULL,
+                    window_start TEXT NOT NULL,
+                    request_count INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    UNIQUE(rate_limit_key, window_start)
+                );
+
+                CREATE TABLE IF NOT EXISTS developer_login_attempt_windows (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    attempt_key TEXT NOT NULL,
+                    window_start TEXT NOT NULL,
+                    attempt_count INTEGER NOT NULL DEFAULT 0,
+                    failed_count INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    UNIQUE(attempt_key, window_start)
+                );
                 """
             )
             self._ensure_column(connection, "screening_reports", "query_reference", "TEXT")
@@ -264,6 +285,104 @@ class DeveloperPlatform:
             )
 
         return raw_token
+
+    def revoke_session(self, token: str) -> None:
+        token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+        with self._connect() as connection:
+            connection.execute(
+                "DELETE FROM developer_sessions WHERE token_hash = ?",
+                (token_hash,),
+            )
+
+    def get_login_attempt_status(
+        self,
+        attempt_key: str,
+        window_seconds: int = 300,
+    ) -> dict[str, Any]:
+        now = datetime.now(UTC)
+        window_start = datetime.fromtimestamp(
+            int(now.timestamp()) - (int(now.timestamp()) % window_seconds),
+            UTC,
+        ).isoformat()
+
+        with self._connect() as connection:
+            row = connection.execute(
+                """
+                SELECT attempt_count, failed_count
+                FROM developer_login_attempt_windows
+                WHERE attempt_key = ? AND window_start = ?
+                """,
+                (attempt_key, window_start),
+            ).fetchone()
+
+        if row is None:
+            return {"attempt_count": 0, "failed_count": 0, "window_start": window_start}
+
+        return {
+            "attempt_count": row["attempt_count"],
+            "failed_count": row["failed_count"],
+            "window_start": window_start,
+        }
+
+    def record_login_attempt(
+        self,
+        attempt_key: str,
+        failed: bool,
+        window_seconds: int = 300,
+    ) -> dict[str, Any]:
+        now = datetime.now(UTC)
+        window_start = datetime.fromtimestamp(
+            int(now.timestamp()) - (int(now.timestamp()) % window_seconds),
+            UTC,
+        ).isoformat()
+        created_at = now_iso()
+
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO developer_login_attempt_windows (
+                    attempt_key, window_start, attempt_count, failed_count, created_at, updated_at
+                )
+                VALUES (?, ?, 0, 0, ?, ?)
+                ON CONFLICT(attempt_key, window_start) DO NOTHING
+                """,
+                (attempt_key, window_start, created_at, created_at),
+            )
+
+            row = connection.execute(
+                """
+                SELECT attempt_count, failed_count
+                FROM developer_login_attempt_windows
+                WHERE attempt_key = ? AND window_start = ?
+                """,
+                (attempt_key, window_start),
+            ).fetchone()
+
+            attempt_count = int(row["attempt_count"]) if row else 0
+            failed_count = int(row["failed_count"]) if row else 0
+            updated_attempt_count = attempt_count + 1
+            updated_failed_count = failed_count + (1 if failed else 0)
+
+            connection.execute(
+                """
+                UPDATE developer_login_attempt_windows
+                SET attempt_count = ?, failed_count = ?, updated_at = ?
+                WHERE attempt_key = ? AND window_start = ?
+                """,
+                (
+                    updated_attempt_count,
+                    updated_failed_count,
+                    created_at,
+                    attempt_key,
+                    window_start,
+                ),
+            )
+
+        return {
+            "attempt_count": updated_attempt_count,
+            "failed_count": updated_failed_count,
+            "window_start": window_start,
+        }
 
     def get_user_for_session(self, token: str) -> SessionUser | None:
         token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
@@ -496,33 +615,43 @@ class DeveloperPlatform:
         return dict(row) if row else None
 
     def authenticate_api_key(self, raw_key: str) -> AuthenticatedApiKey | None:
+        if len(raw_key) < 12:
+            return None
+
+        key_prefix = raw_key[:12]
         with self._connect() as connection:
-            rows = connection.execute(
+            row = connection.execute(
                 """
                 SELECT k.id, k.key_prefix, k.key_hash, k.key_salt, u.id AS user_id, u.email, u.created_at
                 FROM developer_api_keys k
                 JOIN developer_users u ON u.id = k.user_id
-                WHERE k.status = 'active'
-                """
-            ).fetchall()
+                WHERE k.status = 'active' AND k.key_prefix = ?
+                ORDER BY k.id DESC
+                LIMIT 1
+                """,
+                (key_prefix,),
+            ).fetchone()
 
-            for row in rows:
-                if verify_secret(raw_key, row["key_salt"], row["key_hash"]):
-                    connection.execute(
-                        "UPDATE developer_api_keys SET last_used_at = ? WHERE id = ?",
-                        (now_iso(), row["id"]),
-                    )
-                    return AuthenticatedApiKey(
-                        api_key_id=row["id"],
-                        key_prefix=row["key_prefix"],
-                        user=SessionUser(
-                            id=row["user_id"],
-                            email=row["email"],
-                            created_at=row["created_at"],
-                        ),
-                    )
+            if row is None:
+                return None
 
-        return None
+            if not verify_secret(raw_key, row["key_salt"], row["key_hash"]):
+                return None
+
+            connection.execute(
+                "UPDATE developer_api_keys SET last_used_at = ? WHERE id = ?",
+                (now_iso(), row["id"]),
+            )
+
+            return AuthenticatedApiKey(
+                api_key_id=row["id"],
+                key_prefix=row["key_prefix"],
+                user=SessionUser(
+                    id=row["user_id"],
+                    email=row["email"],
+                    created_at=row["created_at"],
+                ),
+            )
 
     def check_rate_limit(
         self,
@@ -577,6 +706,73 @@ class DeveloperPlatform:
                 WHERE api_key_id = ? AND window_start = ?
                 """,
                 (updated_count, created_at, api_key_id, window_key),
+            )
+
+        return {
+            "allowed": True,
+            "limit": limit,
+            "remaining": max(0, limit - updated_count),
+            "retry_after": 0,
+            "reset_at": reset_at.isoformat(),
+        }
+
+    def check_request_rate_limit(
+        self,
+        rate_limit_key: str,
+        limit: int,
+        window_seconds: int = 60,
+    ) -> dict[str, Any]:
+        now = datetime.now(UTC)
+        window_start = datetime.fromtimestamp(
+            int(now.timestamp()) - (int(now.timestamp()) % window_seconds),
+            UTC,
+        ).isoformat()
+        reset_at = datetime.fromtimestamp(
+            int(now.timestamp()) - (int(now.timestamp()) % window_seconds) + window_seconds,
+            UTC,
+        )
+        created_at = now_iso()
+
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO request_rate_limits (
+                    rate_limit_key, window_start, request_count, created_at, updated_at
+                )
+                VALUES (?, ?, 0, ?, ?)
+                ON CONFLICT(rate_limit_key, window_start) DO NOTHING
+                """,
+                (rate_limit_key, window_start, created_at, created_at),
+            )
+
+            row = connection.execute(
+                """
+                SELECT request_count
+                FROM request_rate_limits
+                WHERE rate_limit_key = ? AND window_start = ?
+                """,
+                (rate_limit_key, window_start),
+            ).fetchone()
+
+            request_count = int(row["request_count"]) if row else 0
+            if request_count >= limit:
+                retry_after = max(1, int((reset_at - now).total_seconds()))
+                return {
+                    "allowed": False,
+                    "limit": limit,
+                    "remaining": 0,
+                    "retry_after": retry_after,
+                    "reset_at": reset_at.isoformat(),
+                }
+
+            updated_count = request_count + 1
+            connection.execute(
+                """
+                UPDATE request_rate_limits
+                SET request_count = ?, updated_at = ?
+                WHERE rate_limit_key = ? AND window_start = ?
+                """,
+                (updated_count, created_at, rate_limit_key, window_start),
             )
 
         return {

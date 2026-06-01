@@ -165,6 +165,65 @@ app.add_middleware(
 )
 
 
+def get_client_ip(request: Request) -> str:
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def is_secure_request(request: Request) -> bool:
+    forwarded_proto = request.headers.get("X-Forwarded-Proto", "").split(",")[0].strip().lower()
+    if forwarded_proto:
+        return forwarded_proto == "https"
+    return request.url.scheme == "https"
+
+
+@app.middleware("http")
+async def enforce_security_headers_and_rate_limits(request: Request, call_next):
+    if os.getenv("ENVIRONMENT") == "production" and not is_secure_request(request):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"error": "HTTPS is required for production requests"},
+        )
+
+    public_rate_limit = int(os.getenv("PUBLIC_RATE_LIMIT_PER_MINUTE", "0"))
+    rate_limit_data = None
+    is_public_request = not request.url.path.startswith("/developer")
+
+    if public_rate_limit > 0 and is_public_request:
+        client_ip = get_client_ip(request)
+        rate_limit_data = developer_platform.check_request_rate_limit(
+            rate_limit_key=f"public:{client_ip}:{request.url.path}",
+            limit=public_rate_limit,
+            window_seconds=60,
+        )
+        if not rate_limit_data["allowed"]:
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"error": "Public rate limit exceeded"},
+                headers={
+                    "Retry-After": str(rate_limit_data["retry_after"]),
+                    "X-RateLimit-Limit": str(rate_limit_data["limit"]),
+                    "X-RateLimit-Remaining": str(rate_limit_data["remaining"]),
+                    "X-RateLimit-Reset": rate_limit_data["reset_at"],
+                },
+            )
+
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Permissions-Policy", "interest-cohort=()")
+
+    if rate_limit_data is not None:
+        response.headers["X-RateLimit-Limit"] = str(rate_limit_data["limit"])
+        response.headers["X-RateLimit-Remaining"] = str(rate_limit_data["remaining"])
+        response.headers["X-RateLimit-Reset"] = rate_limit_data["reset_at"]
+
+    return response
+
+
 def get_dashboard_user(authorization: str = Header(default="")):
     if not authorization.startswith("Bearer "):
         logger.warning("Developer dashboard request missing session token")
@@ -413,15 +472,46 @@ async def developer_signup(payload: DeveloperSignupRequest):
     summary="Login developer account",
     tags=["Developer Auth"],
 )
-async def developer_login(payload: DeveloperLoginRequest):
+async def developer_login(payload: DeveloperLoginRequest, request: Request):
+    login_key = f"login:{get_client_ip(request)}:{payload.email.strip().lower()}"
+    failed_limit = int(os.getenv("DEVELOPER_LOGIN_FAILED_LIMIT", "5"))
+    login_attempt_status = developer_platform.get_login_attempt_status(login_key)
+    if login_attempt_status["failed_count"] >= failed_limit:
+        logger.warning(
+            "Developer login blocked by throttle for email=%s ip=%s",
+            payload.email.strip().lower(),
+            get_client_ip(request),
+        )
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many failed login attempts. Please try again later.",
+        )
+
     user = developer_platform.authenticate_user(payload.email, payload.password)
     if user is None:
+        developer_platform.record_login_attempt(login_key, failed=True)
         logger.warning("Developer login failed for email=%s", payload.email.strip().lower())
         raise HTTPException(status_code=401, detail="Invalid developer credentials")
 
+    developer_platform.record_login_attempt(login_key, failed=False)
     token = developer_platform.create_session(user.id)
     logger.info("Developer login succeeded for user_id=%s email=%s", user.id, user.email)
     return DeveloperAuthResponse(access_token=token, email=user.email)
+
+
+@app.post(
+    "/developer/auth/logout",
+    summary="Logout developer account",
+    tags=["Developer Auth"],
+)
+async def developer_logout(
+    authorization: str = Header(default=""),
+    user=Depends(get_dashboard_user),
+):
+    token = authorization.replace("Bearer ", "", 1).strip()
+    developer_platform.revoke_session(token)
+    logger.info("Developer logout succeeded for user_id=%s email=%s", user.id, user.email)
+    return {"status": "logged_out"}
 
 
 @app.get(
