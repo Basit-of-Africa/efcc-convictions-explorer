@@ -24,6 +24,8 @@ from models import (
     DeveloperBillingInitializeRequest,
     DeveloperBillingInitializeResponse,
     DeveloperLoginRequest,
+    DeveloperPlanDetails,
+    DeveloperPlansResponse,
     DeveloperProfileResponse,
     DeveloperSignupRequest,
     PaginatedResponse,
@@ -528,6 +530,20 @@ async def developer_me(user=Depends(get_dashboard_user)):
         latest_subscription_status=subscription["status"] if subscription else None,
         latest_subscription_reference=subscription["reference"] if subscription else None,
         latest_subscription_active_until=subscription["active_until"] if subscription else None,
+        latest_subscription_plan=subscription["plan_name"] if subscription else None,
+    )
+
+
+@app.get(
+    "/developer/plans",
+    response_model=DeveloperPlansResponse,
+    summary="List developer subscription plans",
+    tags=["Developer Billing"],
+)
+async def list_developer_plans():
+    plans = developer_platform.get_available_plans()
+    return DeveloperPlansResponse(
+        plans=[DeveloperPlanDetails(**plan) for plan in plans]
     )
 
 

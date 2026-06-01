@@ -79,6 +79,23 @@ class DeveloperProfileResponse(BaseModel):
     latest_subscription_status: Optional[str] = Field(None, description="Most recent subscription status")
     latest_subscription_reference: Optional[str] = Field(None, description="Most recent Paystack reference")
     latest_subscription_active_until: Optional[str] = Field(None, description="Subscription expiry timestamp")
+    latest_subscription_plan: Optional[str] = Field(None, description="Most recent subscription plan name")
+
+
+class DeveloperPlanDetails(BaseModel):
+    name: str = Field(..., description="Plan name")
+    price_kobo: int = Field(..., description="Price amount in kobo")
+    currency: str = Field(default="NGN", description="Currency code")
+    description: str = Field(..., description="Short plan description")
+    api_call_quota: int = Field(..., description="Monthly API call quota")
+    report_quota: int = Field(..., description="Monthly screening report quota")
+    export_enabled: bool = Field(..., description="Whether exports are enabled")
+    bulk_screening_enabled: bool = Field(..., description="Whether bulk screening is enabled")
+    is_free: bool = Field(False, description="Whether the plan is free")
+
+
+class DeveloperPlansResponse(BaseModel):
+    plans: list[DeveloperPlanDetails] = Field(..., description="Available developer plans")
 
 
 class DeveloperBillingInitializeRequest(BaseModel):

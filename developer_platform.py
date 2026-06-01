@@ -413,6 +413,16 @@ class DeveloperPlatform:
         if user is None:
             raise ValueError("Developer user not found")
 
+        plan = self.get_plan_by_name(plan_name)
+        if plan is None:
+            raise ValueError("Invalid plan name")
+
+        if plan["price_kobo"] != amount_kobo:
+            raise ValueError("Plan amount does not match configured price")
+
+        if plan["price_kobo"] <= 0:
+            raise ValueError("Payment initialization is not required for free plans")
+
         paystack_secret = os.getenv("PAYSTACK_SECRET_KEY")
         if not paystack_secret:
             raise RuntimeError("PAYSTACK_SECRET_KEY is not configured")
@@ -782,6 +792,71 @@ class DeveloperPlatform:
             "retry_after": 0,
             "reset_at": reset_at.isoformat(),
         }
+
+    def get_available_plans(self) -> list[dict[str, Any]]:
+        raw_plans = os.getenv("DEVELOPER_API_PLANS", "")
+        if raw_plans:
+            try:
+                parsed_plans = json.loads(raw_plans)
+                if isinstance(parsed_plans, list) and all(isinstance(item, dict) for item in parsed_plans):
+                    return parsed_plans
+            except json.JSONDecodeError:
+                pass
+
+        default_name = globals()["default_plan_name"]()
+        return [
+            {
+                "name": "Free",
+                "price_kobo": 0,
+                "currency": "NGN",
+                "description": "Basic access for small scale discovery and experimentation.",
+                "api_call_quota": 100,
+                "report_quota": 5,
+                "export_enabled": False,
+                "bulk_screening_enabled": False,
+                "is_free": True,
+            },
+            {
+                "name": default_plan_name,
+                "price_kobo": default_plan_amount_kobo(),
+                "currency": "NGN",
+                "description": "Developer plan for API access, screening reports, and exports.",
+                "api_call_quota": 1000,
+                "report_quota": 50,
+                "export_enabled": True,
+                "bulk_screening_enabled": True,
+                "is_free": False,
+            },
+            {
+                "name": "Business",
+                "price_kobo": int(os.getenv("DEVELOPER_API_BUSINESS_PLAN_AMOUNT_KOBO", "1500000")),
+                "currency": "NGN",
+                "description": "Higher-usage plan for growing compliance teams.",
+                "api_call_quota": 10000,
+                "report_quota": 250,
+                "export_enabled": True,
+                "bulk_screening_enabled": True,
+                "is_free": False,
+            },
+            {
+                "name": "Enterprise",
+                "price_kobo": int(os.getenv("DEVELOPER_API_ENTERPRISE_PLAN_AMOUNT_KOBO", "5000000")),
+                "currency": "NGN",
+                "description": "Custom plan with premium support and enterprise features.",
+                "api_call_quota": -1,
+                "report_quota": -1,
+                "export_enabled": True,
+                "bulk_screening_enabled": True,
+                "is_free": False,
+            },
+        ]
+
+    def get_plan_by_name(self, plan_name: str) -> dict[str, Any] | None:
+        normalized = plan_name.strip().lower()
+        for plan in self.get_available_plans():
+            if plan["name"].strip().lower() == normalized:
+                return plan
+        return None
 
     def get_user_by_id(self, user_id: int) -> SessionUser | None:
         with self._connect() as connection:
