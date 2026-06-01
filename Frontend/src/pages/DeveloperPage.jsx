@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Check, Code, Copy, Menu, X } from "lucide-react";
+import { fetchDeveloperPlans } from "../lib/developerAuth";
 
 const sections = [
   { id: "overview", label: "Overview", icon: "API" },
   { id: "quickstart", label: "Quick Start", icon: "01" },
   { id: "auth", label: "Authentication", icon: "02" },
   { id: "billing", label: "Paystack Billing", icon: "03" },
-  { id: "endpoints", label: "Endpoints", icon: "04" },
-  { id: "examples", label: "Code Examples", icon: "05" },
-  { id: "notes", label: "Product Notes", icon: "06" },
+  { id: "pricing", label: "Pricing", icon: "04" },
+  { id: "endpoints", label: "Endpoints", icon: "05" },
+  { id: "examples", label: "Code Examples", icon: "06" },
+  { id: "notes", label: "Product Notes", icon: "07" },
 ];
 
 const endpointRows = [
@@ -78,6 +80,22 @@ const DeveloperPage = ({ isDark }) => {
   const [activeSection, setActiveSection] = useState("overview");
   const [copiedCode, setCopiedCode] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [plans, setPlans] = useState([]);
+  const [plansLoading, setPlansLoading] = useState(false);
+  const [plansError, setPlansError] = useState(null);
+
+  useEffect(() => {
+    setPlansLoading(true);
+    fetchDeveloperPlans()
+      .then((data) => {
+        setPlans(data.plans || []);
+        setPlansError(null);
+      })
+      .catch((error) => {
+        setPlansError("Unable to load pricing plans at this time.");
+      })
+      .finally(() => setPlansLoading(false));
+  }, []);
 
   const panelClass = isDark
     ? "bg-slate-800/60 border-slate-700"
@@ -229,6 +247,64 @@ DEVELOPER_API_PLAN_NAME=Developer API Monthly
 DEVELOPER_API_PLAN_AMOUNT_KOBO=500000`}</pre>
               </div>
             </div>
+          </div>
+        );
+
+      case "pricing":
+        return (
+          <div className="space-y-6">
+            <h1 className={`text-4xl font-bold ${headingClass}`}>Pricing</h1>
+            <div className={`rounded-2xl border p-6 ${panelClass}`}>
+              <p className={`leading-7 ${mutedTextClass}`}>
+                Choose the plan that fits your compliance workflow. Plans are loaded
+                dynamically from the backend so the frontend always reflects current
+                pricing and included capabilities.
+              </p>
+            </div>
+            {plansLoading ? (
+              <div className={`rounded-2xl border p-6 ${panelClass}`}>
+                <p className={mutedTextClass}>Loading pricing plans...</p>
+              </div>
+            ) : plansError ? (
+              <div className={`rounded-2xl border p-6 ${panelClass}`}>
+                <p className="text-red-500">{plansError}</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-6">
+                {plans.map((plan) => (
+                  <div key={plan.name} className={`rounded-3xl border p-6 ${panelClass}`}>
+                    <div className="flex items-center justify-between gap-4 mb-4">
+                      <div>
+                        <h2 className={`text-2xl font-semibold ${headingClass}`}>{plan.name}</h2>
+                        <p className={`text-sm ${mutedTextClass}`}>{plan.description}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-3xl font-bold">{plan.price_kobo === 0 ? "Free" : `₦${(plan.price_kobo / 100).toLocaleString()}`}</p>
+                        <p className="text-sm text-gray-500">per month</p>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="rounded-2xl bg-slate-50 p-4">
+                        <p className="text-sm font-semibold mb-2">Quota</p>
+                        <p className="text-sm text-slate-600">API calls: {plan.api_call_quota === -1 ? "Unlimited" : plan.api_call_quota}</p>
+                        <p className="text-sm text-slate-600">Reports: {plan.report_quota === -1 ? "Unlimited" : plan.report_quota}</p>
+                      </div>
+                      <div className="rounded-2xl bg-slate-50 p-4">
+                        <p className="text-sm font-semibold mb-2">Features</p>
+                        <ul className="space-y-2 text-sm text-slate-600">
+                          {(plan.feature_list || []).map((feature) => (
+                            <li key={feature} className="flex items-start gap-2">
+                              <span className="mt-1 text-blue-500">•</span>
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         );
 

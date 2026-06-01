@@ -60,6 +60,11 @@ export async function fetchDeveloperProfile() {
   return response.data;
 }
 
+export async function fetchDeveloperPlans() {
+  const response = await axios.get(`${getDeveloperApiBaseUrl()}/developer/plans`);
+  return response.data;
+}
+
 export async function initializeDeveloperBilling(planName) {
   const response = await axios.post(
     `${getDeveloperApiBaseUrl()}/developer/billing/initialize`,

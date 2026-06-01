@@ -814,10 +814,15 @@ class DeveloperPlatform:
                 "report_quota": 5,
                 "export_enabled": False,
                 "bulk_screening_enabled": False,
+                "feature_list": [
+                    "Discover conviction data with monthly search limits",
+                    "Basic developer account and API access",
+                    "No export or bulk screening support",
+                ],
                 "is_free": True,
             },
             {
-                "name": default_plan_name,
+                "name": default_name,
                 "price_kobo": default_plan_amount_kobo(),
                 "currency": "NGN",
                 "description": "Developer plan for API access, screening reports, and exports.",
@@ -825,6 +830,11 @@ class DeveloperPlatform:
                 "report_quota": 50,
                 "export_enabled": True,
                 "bulk_screening_enabled": True,
+                "feature_list": [
+                    "Full paid access to developer API endpoints",
+                    "Export search results and screening reports",
+                    "Bulk screening support and higher quotas",
+                ],
                 "is_free": False,
             },
             {
@@ -836,6 +846,11 @@ class DeveloperPlatform:
                 "report_quota": 250,
                 "export_enabled": True,
                 "bulk_screening_enabled": True,
+                "feature_list": [
+                    "Higher monthly API and report quotas",
+                    "Priority support and usage analytics",
+                    "Built for teams and mid-market compliance workflows",
+                ],
                 "is_free": False,
             },
             {
@@ -847,6 +862,11 @@ class DeveloperPlatform:
                 "report_quota": -1,
                 "export_enabled": True,
                 "bulk_screening_enabled": True,
+                "feature_list": [
+                    "Unlimited quotas with enterprise-level SLAs",
+                    "Dedicated onboarding and premium support",
+                    "Custom data export and integration support",
+                ],
                 "is_free": False,
             },
         ]

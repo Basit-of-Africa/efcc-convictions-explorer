@@ -91,6 +91,7 @@ class DeveloperPlanDetails(BaseModel):
     report_quota: int = Field(..., description="Monthly screening report quota")
     export_enabled: bool = Field(..., description="Whether exports are enabled")
     bulk_screening_enabled: bool = Field(..., description="Whether bulk screening is enabled")
+    feature_list: list[str] = Field(default_factory=list, description="List of feature bullets for this plan")
     is_free: bool = Field(False, description="Whether the plan is free")
 
 
